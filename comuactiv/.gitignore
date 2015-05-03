@@ -1,0 +1,14 @@
+# Ignore the build and lib dirs
+*/build
+*/lib/*
+
+# Ignore any executables
+*/bin/*
+
+# Ignore project files
+.project
+.cproject
+.settings
+
+# Ignore temporary
+*~
