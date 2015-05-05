@@ -4,11 +4,13 @@
 #Compiler
 CC := g++
 #Compiler flags
-CFLAGS=-c -Wall -Werror -std=c++11 -O0
+CFLAGS=-c -Wall -std=c++11 -O0 -fpermissive
 #Libraries
-LIB := -pthread
+LIB := -lcomuactiv -pthread
 #Include
-INC := -I include
+INC_PATH := -I include
+LIB_PATH := -L ../proto/bin/
+
 
 #Project directories
 SRCDIR := src
@@ -22,11 +24,11 @@ OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."
-	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
+	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ $(LIB_PATH) $(LIB) -o $(TARGET) 
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT) 
 	@mkdir -p $(dir $@)
-	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	@echo " $(CC) $(CFLAGS) $(INC_PATH) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC_PATH) -c -o $@ $<
 
 clean:
 	@echo " Cleaning..."; 
@@ -34,6 +36,6 @@ clean:
 
 # Tests
 tester:
-	$(CC) $(CFLAGS) test/tester.cpp $(INC) $(LIB) -o bin/tester
+	$(CC) $(CFLAGS) test/tester.cpp $(INC_PATH) $(LIB) -o bin/tester
 
 .PHONY: clean

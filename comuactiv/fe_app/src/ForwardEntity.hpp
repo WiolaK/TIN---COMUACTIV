@@ -2,13 +2,11 @@
  * ForwardEntity.hpp
  *
  *  Created on: 3 May 2015
- *      Author: john
+ *      Author: Jan Kumor
  */
 
 #ifndef SRC_FE_APP_FORWARDENTITY_HPP_
 #define SRC_FE_APP_FORWARDENTITY_HPP_
-
-#include <iostream>
 
 namespace comuactiv {
 namespace fe_app {
@@ -17,10 +15,7 @@ class ForwardEntity {
 public:
 	static ForwardEntity& getInstance();
 
-	void start() {
-		std::cout << "FE Started" << std::endl;
-		while(1);
-	}
+	void start(std::string host, std::string highPort);
 
 private:
 	ForwardEntity();
