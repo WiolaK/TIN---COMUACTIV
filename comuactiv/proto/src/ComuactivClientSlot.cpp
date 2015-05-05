@@ -20,6 +20,9 @@
 #include "ActiveChannel.hpp"
 #include "PassiveChannel.hpp"
 
+#define DATA "Some msg"
+
+#define LOG(x) std::cout << "COMUACTIVE ClientSlot: " << x << std::endl
 
 using namespace comuactiv::proto;
 
@@ -55,7 +58,7 @@ ComuactivClientSlot::ComuactivClientSlotImpl::ComuactivClientSlotImpl(std::strin
   pHigh_(new PassiveChannel()),
   pMedium_(new PassiveChannel()),
   pLow_(new PassiveChannel()) {
-	std::cout << "Creating COMUACTIV ClientSlot" << std::endl;
+	LOG("created.");
 }
 /*
 ComuactivSlot::ComuactivSlot(const ComuactivSlot& other)
@@ -85,15 +88,28 @@ void ComuactivClientSlot::run() {
 }
 
 void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
+	LOG("Initialising connection to: " << host_ << ":" << highPort_);
 	aHigh_ = pAChannel(new ActiveChannel(host_, highPort_));
-	sleep(5);
-	std::cout << "Input medium port: ";
+	sleep(1);
+	LOG("Input medium port: ");
 	std::cin>>mediumPort_;
+	LOG("Initialising connection to: " << host_ << ":" << mediumPort_);
 	aMedium_ = pAChannel(new ActiveChannel(host_, mediumPort_));
-	std::cout << "Input low port: ";
+	LOG("Input low port: ");
 	std::cin>>lowPort_;
-	aMedium_ = pAChannel(new ActiveChannel(host_, lowPort_));
-	sleep(10);
+	LOG("Initialising connection to: " << host_ << ":" << lowPort_);
+	aLow_ = pAChannel(new ActiveChannel(host_, lowPort_));
+	while(true) {
+		LOG("Writing to high");
+		aHigh_->writeData(DATA);
+		sleep(1);
+		LOG("Writing to medium");
+		aMedium_->writeData(DATA);
+		sleep(1);
+		LOG("Writing to low");
+		aLow_->writeData(DATA);
+		sleep(1);
+	}
 }
 
 } /* namespace proto */

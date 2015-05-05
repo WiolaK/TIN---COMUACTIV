@@ -16,6 +16,8 @@
 
 #include <cstring>
 
+#include <memory>
+
 #include "ControlEntity.hpp"
 #include "../../proto/include/comuactiv.hpp"
 
@@ -50,7 +52,7 @@ void ControlEntity::start() {
 	/* dowiaz adres do gniazda */
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = 0;
+	server.sin_port = 1020;
 	if (bind(sock, (struct sockaddr *) &server, sizeof server) == -1) {
 		perror("binding stream socket");
 		exit(1);
@@ -61,7 +63,7 @@ void ControlEntity::start() {
 		perror("getting socket name");
 		exit(1);
 	}
-	printf("Socket port #%d\n", ntohs(server.sin_port));
+	std::cout << "CE is listening for incoming connections on port: " << ntohs(server.sin_port) << std::endl;
 
 	listen(sock, 5);
 	std::cout << "Sock: " << sock << std::endl;
@@ -70,7 +72,8 @@ void ControlEntity::start() {
 		if (msgsock == -1 ) {
 			perror("accept");
 		} else {
-			ComuactivServerSlot* slot = new ComuactivServerSlot(msgsock);
+			std::cout << "CE: Incoming connection accepted on socket: " << msgsock << std::endl;
+			std::unique_ptr<ComuactivServerSlot> slot(new ComuactivServerSlot(msgsock));
 			slot->run();
 		}
 

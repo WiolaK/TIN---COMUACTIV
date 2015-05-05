@@ -15,10 +15,10 @@
 
 using namespace comuactiv::proto;
 
+#define LOG(x) std::cout << "ActiveChannel #" << id_ << ": " << x << std::endl
+
 namespace comuactiv {
 namespace proto {
-
-#define DATA "Half a league, half a league . . ."
 
 int ActiveChannel::counter_ = 0;
 
@@ -26,13 +26,13 @@ ActiveChannel::ActiveChannel(std::string host, std::string port)
 : host_(host),
   port_(port) {
 	id_ = ++counter_;
-	//pthread_create(&tid, nullptr, &execute, this);
+	LOG("created.");
 	initialize();
 }
 
 ActiveChannel::~ActiveChannel() {
 	close(sock_);
-	std::cout << "Closing PassiveChannel #" << id_ << std::endl;
+	LOG("closed.");
 }
 
 void* ActiveChannel::run() {
@@ -40,7 +40,6 @@ void* ActiveChannel::run() {
 }
 
 void ActiveChannel::initialize() {
-	std::cout << "Creating ActiveChannel #" << counter_ << " on socket: "<< sock_ << std::endl;
 	SocketAddressIn serverAddress;
 	HostEntry* hostEntry;
 
@@ -66,12 +65,10 @@ void ActiveChannel::initialize() {
 }
 
 void ActiveChannel::writeData(char* data) {
-	do {
-		if (write( sock_, data, sizeof data ) == -1) {
-			perror("writing on stream socket");
-		}
-		sleep(5);
-	}while(true);
+	LOG("writing: " << data);
+	if (write( sock_, data, sizeof data ) == -1) {
+		perror("writing on stream socket");
+	}
 }
 
 } /* namespace proto */

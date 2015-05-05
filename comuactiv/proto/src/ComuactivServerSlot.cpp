@@ -33,17 +33,22 @@ typedef struct hostent HostEntry;
 typedef std::shared_ptr<ActiveChannel> pAChannel;
 typedef std::shared_ptr<PassiveChannel> pPChannel;
 
+#define LOG(x) std::cout << "COMUACTIVE ServerSlot #" << id_ << ": " << x << std::endl
+
 class ComuactivServerSlot::ComuactivServerSlotImpl {
 public:
+	static int counter_;
+
 	ComuactivServerSlotImpl();
 	ComuactivServerSlotImpl(int sock);
 	void run();
 
 private:
-	char* host_;
-	char* highPort_;
-	char* mediumPort_;
-	char* lowPort_;
+	int id_;
+	std::string host_;
+	std::string highPort_;
+	std::string mediumPort_;
+	std::string lowPort_;
 	pAChannel aHigh_;
 	pAChannel aMedium_;
 	pAChannel aLow_;
@@ -51,6 +56,8 @@ private:
 	pPChannel pMedium_;
 	pPChannel pLow_;
 };
+
+int ComuactivServerSlot::ComuactivServerSlotImpl::counter_ = 0;
 
 ComuactivServerSlot::ComuactivServerSlot()
 : slot_(new ComuactivServerSlotImpl()) {
@@ -62,15 +69,17 @@ ComuactivServerSlot::ComuactivServerSlot(int sock)
 	// do nothing
 }
 
-ComuactivServerSlot::ComuactivServerSlotImpl::ComuactivServerSlotImpl() {
+ComuactivServerSlot::ComuactivServerSlotImpl::ComuactivServerSlotImpl()
+: id_(++counter_) {
 
 }
 
 ComuactivServerSlot::ComuactivServerSlotImpl::ComuactivServerSlotImpl(int sock)
-: pHigh_(new PassiveChannel(sock)),
+: id_(++counter_),
+  pHigh_(new PassiveChannel(sock)),
   pMedium_(new PassiveChannel()),
   pLow_(new PassiveChannel()) {
-	std::cout << "Creating COMUACTIV ServerSlot" << std::endl;
+	LOG("created.");
 }
 
 /*
@@ -101,10 +110,32 @@ void ComuactivServerSlot::run() {
 }
 
 void ComuactivServerSlot::ComuactivServerSlotImpl::run() {
-	std::cin >> highPort_;
-
-	std::cin >> mediumPort_;
-	std::cin >> lowPort_;
+	sleep(1);
+	host_ = std::string("127.0.0.1");
+	LOG("Input high port: ");
+	std::cin>>highPort_;
+	LOG("Initialising connection to: " << host_ << ":" << highPort_);
+	aHigh_ = pAChannel(new ActiveChannel(host_, highPort_));
+	sleep(1);
+	LOG("Input medium port: ");
+	std::cin>>mediumPort_;
+	LOG("Initialising connection to: " << host_ << ":" << mediumPort_);
+	aMedium_ = pAChannel(new ActiveChannel(host_, mediumPort_));
+	LOG("Input low port: ");
+	std::cin>>lowPort_;
+	LOG("Initialising connection to: " << host_ << ":" << lowPort_);
+	aLow_ = pAChannel(new ActiveChannel(host_, lowPort_));
+	while(true) {
+		LOG("Writing to high");
+		aHigh_->writeData("H");
+		sleep(1);
+		LOG("Writing to medium");
+		aMedium_->writeData("M");
+		sleep(1);
+		LOG("Writing to low");
+		aLow_->writeData("L");
+		sleep(1);
+	}
 }
 
 } /* namespace proto */
