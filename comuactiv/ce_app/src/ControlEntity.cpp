@@ -19,7 +19,7 @@
 #include <memory>
 
 #include "ControlEntity.hpp"
-#include "../../proto/include/comuactiv.hpp"
+#include "../../proto/include/comuactiv/ComuactivServerSlot.hpp"
 
 using namespace comuactiv::ce_app;
 using namespace comuactiv::proto;
@@ -52,7 +52,7 @@ void ControlEntity::start() {
 	/* dowiaz adres do gniazda */
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = 1020;
+	server.sin_port = htons(CE_PORT);
 	if (bind(sock, (struct sockaddr *) &server, sizeof server) == -1) {
 		perror("binding stream socket");
 		exit(1);

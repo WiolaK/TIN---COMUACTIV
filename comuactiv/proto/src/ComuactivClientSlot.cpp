@@ -13,7 +13,7 @@
 #include <iostream>
 #include <string>
 
-#include <ComuactivClientSlot.hpp>
+#include <comuactiv/ComuactivClientSlot.hpp>
 
 #include "comuactiv_utils.hpp"
 #include "Channel.hpp"

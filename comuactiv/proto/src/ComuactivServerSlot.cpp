@@ -17,7 +17,7 @@
 #include <memory>
 #include <cstring>
 
-#include <ComuactivServerSlot.hpp>
+#include <comuactiv/ComuactivServerSlot.hpp>
 #include "ActiveChannel.hpp"
 #include "PassiveChannel.hpp"
 

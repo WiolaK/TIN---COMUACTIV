@@ -16,7 +16,7 @@
 #include <iostream>
 #include <memory>
 
-#include "../../proto/include/comuactiv.hpp"
+#include "../../proto/include/comuactiv/comuactiv.hpp"
 
 #include "ForwardEntity.hpp"
 

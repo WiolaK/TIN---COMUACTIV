@@ -24,7 +24,7 @@ SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 
-$(TARGET): $(OBJECTS)
+$(LIBTARGET): $(OBJECTS)
 	@echo " Archiving library..."
 	@echo " $(AR) rcs $(LIBTARGET) $^"; $(AR) rcs $(LIBTARGET) $^
 
@@ -34,7 +34,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 
 clean:
 	@echo " Cleaning..."; 
-	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
+	@echo "  $(RM) -r $(BUILDDIR) $(LIBTARGET)"; $(RM) -r $(BUILDDIR) $(LIBTARGET)
 
 # Tests
 main: $(OBJECTS)

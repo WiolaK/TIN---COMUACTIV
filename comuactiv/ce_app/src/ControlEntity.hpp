@@ -18,6 +18,8 @@ public:
 	void start();
 
 private:
+	static const int CE_PORT=5555;
+
 	ControlEntity();
 	ControlEntity(const ControlEntity&) = delete;
 	ControlEntity& operator=(const ControlEntity&) = delete;
