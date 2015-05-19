@@ -127,13 +127,13 @@ void ComuactivServerSlot::ComuactivServerSlotImpl::run() {
 	aLow_ = pAChannel(new ActiveChannel(host_, lowPort_));
 	while(true) {
 		LOG("Writing to high");
-		aHigh_->writeData("H");
+		aHigh_->writeData("H",1);
 		sleep(1);
 		LOG("Writing to medium");
-		aMedium_->writeData("M");
+		aMedium_->writeData("M",1);
 		sleep(1);
 		LOG("Writing to low");
-		aLow_->writeData("L");
+		aLow_->writeData("L",1);
 		sleep(1);
 	}
 }

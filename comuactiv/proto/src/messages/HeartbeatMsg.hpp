@@ -16,8 +16,14 @@ namespace messages {
 
 class HeartbeatMsg: public Message {
 public:
+	const static MsgCode defaultCode = HEARTBEAT;
+
 	HeartbeatMsg();
 	virtual ~HeartbeatMsg();
+
+	static Message* create() {
+		return new HeartbeatMsg();
+	}
 };
 
 } /* namespace messages */

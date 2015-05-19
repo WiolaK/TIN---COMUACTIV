@@ -5,19 +5,17 @@
  *      Author: Jan Kumor
  */
 
-#include <algorithm>
-
-#include <stdio.h>
-
-#include <cstring>
-#include <iostream>
-#include <string>
-
 #include <comuactiv/ComuactivClientSlot.hpp>
+#include <unistd.h>
+#include <algorithm>
+#include <cstdint>
+#include <iostream>
+#include <memory>
 
-#include "comuactiv_utils.hpp"
-#include "Channel.hpp"
 #include "ActiveChannel.hpp"
+#include "comuactiv_utils.hpp"
+#include "messages/Message.hpp"
+#include "messages/MessageFactory.hpp"
 #include "PassiveChannel.hpp"
 
 #define DATA "Some msg"
@@ -25,6 +23,7 @@
 #define LOG(x) std::cout << "COMUACTIVE ClientSlot: " << x << std::endl
 
 using namespace comuactiv::proto;
+using namespace comuactiv::proto::messages;
 
 namespace comuactiv {
 namespace proto {
@@ -39,11 +38,15 @@ private:
 	std::string highPort_;
 	std::string mediumPort_;
 	std::string lowPort_;
-	pAChannel aHigh_;
-	pAChannel aMedium_;
-	pAChannel aLow_;
+
+	//high is active only at connection association so passive
 	pPChannel pHigh_;
-	pPChannel pMedium_;
+
+	//medium is active
+	pAChannel aMedium_;
+
+	//low must be asynchronous thou active and passive
+	pAChannel aLow_;
 	pPChannel pLow_;
 };
 
@@ -55,8 +58,6 @@ ComuactivClientSlot::ComuactivClientSlot(std::string host, std::string highPort)
 ComuactivClientSlot::ComuactivClientSlotImpl::ComuactivClientSlotImpl(std::string host, std::string highPort)
 : host_(host),
   highPort_(highPort),
-  pHigh_(new PassiveChannel()),
-  pMedium_(new PassiveChannel()),
   pLow_(new PassiveChannel()) {
 	LOG("created.");
 }
@@ -89,9 +90,14 @@ void ComuactivClientSlot::run() {
 
 void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
 	LOG("Initialising connection to: " << host_ << ":" << highPort_);
-	aHigh_ = pAChannel(new ActiveChannel(host_, highPort_));
-	sleep(1);
-	LOG("Input medium port: ");
+	{
+		pAChannel aHigh = pAChannel(new ActiveChannel(host_, highPort_));
+		pMessage msg = MessageFactory::getInstance().create(Message::ASSOCIATION_SETUP);
+		msg->getRaw();
+		LOG("Writing ASSOCIATION_SETUP to high.");
+		//aHigh->writeData(msg->getRaw()->array, msg->getLength());
+	}
+
 	std::cin>>mediumPort_;
 	LOG("Initialising connection to: " << host_ << ":" << mediumPort_);
 	aMedium_ = pAChannel(new ActiveChannel(host_, mediumPort_));
@@ -100,14 +106,14 @@ void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
 	LOG("Initialising connection to: " << host_ << ":" << lowPort_);
 	aLow_ = pAChannel(new ActiveChannel(host_, lowPort_));
 	while(true) {
-		LOG("Writing to high");
-		aHigh_->writeData(DATA);
+
+
 		sleep(1);
 		LOG("Writing to medium");
-		aMedium_->writeData(DATA);
+		aMedium_->writeData(DATA,1);
 		sleep(1);
 		LOG("Writing to low");
-		aLow_->writeData(DATA);
+		aLow_->writeData(DATA,1);
 		sleep(1);
 	}
 }

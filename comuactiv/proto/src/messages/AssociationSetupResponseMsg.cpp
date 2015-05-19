@@ -12,7 +12,7 @@ namespace proto {
 namespace messages {
 
 AssociationSetupResponseMsg::AssociationSetupResponseMsg()
-: Message(ASSOCIATION_SETUP_RESPONSE) {
+: Message(defaultCode) {
 	// Do nothing
 }
 

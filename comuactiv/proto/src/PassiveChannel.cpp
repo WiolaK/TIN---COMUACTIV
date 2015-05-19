@@ -7,10 +7,15 @@
 
 #include "PassiveChannel.hpp"
 
-#include <stdio.h>
+#include <netinet/in.h>
+#include <pthread.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
 
-#include "comuactiv_utils.hpp"
+#include "ActiveChannel.hpp"
 
 #define LOG(x) std::cout << "PassiveChannel #" << id_ << ": " << x << std::endl
 
@@ -31,6 +36,11 @@ PassiveChannel::PassiveChannel(int sock)
 : sock_(sock) {
 	id_ = ++counter_;
 	pthread_create(&tid, nullptr, &execute, this);
+}
+
+PassiveChannel::PassiveChannel(pAChannel active)
+: sock_(active->getSock()) {
+	id_ = ++counter_;
 }
 
 PassiveChannel::~PassiveChannel() {

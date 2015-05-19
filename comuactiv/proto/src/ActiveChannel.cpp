@@ -64,9 +64,9 @@ void ActiveChannel::initialize() {
 	}
 }
 
-void ActiveChannel::writeData(char* data) {
+void ActiveChannel::writeData(char* data, int size) {
 	LOG("writing: " << data);
-	if (write( sock_, data, sizeof data ) == -1) {
+	if (write( sock_, data, size ) == -1) {
 		perror("writing on stream socket");
 	}
 }

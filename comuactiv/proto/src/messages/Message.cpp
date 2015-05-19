@@ -12,17 +12,13 @@ namespace comuactiv {
 namespace proto {
 namespace messages {
 
+/*
 Message::Message() {
 	//Do nothing
 }
+*/
 
-Message::Message( MsgCode code)
-: prefix_(std::string("COMUACTIV")),
-  code_(code),
-  length_(0),
-  id_(0) {
-	// Do nothing
-}
+uint32_t Message::counter_ = 0;
 
 Message::~Message() {
 	// Do nothing

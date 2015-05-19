@@ -9,11 +9,13 @@
 #define PROTO_SRC_MESSAGEFACTORY_HPP_
 
 #include <map>
+#include <memory>
 
-#include "messages/Message.hpp"
+#include "Message.hpp"
 
 namespace comuactiv {
 namespace proto {
+namespace messages {
 
 /**
  * Abstract factory of COMUACTIV protocol messages. Is a singleton class.
@@ -26,16 +28,18 @@ public:
 	static MessageFactory& getInstance();
 
 
-	typedef	messages::Message* (*CreateMessageFun)();
+	typedef	Message* (*CreateMessageFun)();
 	/**
 	 * register new type in MessageFactory.
 	 */
-	bool RegisterMessage( int code, CreateMessageFun fun);
+	bool registerMessage(Message::MsgCode code, CreateMessageFun fun);
 
 	/**
 	 * creates specific message basing on message code
 	 */
-	messages::Message* create( int code);
+	pMessage create(Message::MsgCode code);
+
+	void initialize();
 
 private:
 	// singleton pattern
@@ -48,6 +52,7 @@ private:
 	Callbacks callbacks_;
 };
 
+} /* namespace messages */
 } /* namespace proto */
 } /* namespace comuactiv */
 

@@ -24,8 +24,11 @@ public:
 
 
 	virtual void* run();
-	void writeData(char* data);
+	void writeData(char* data, int size);
 
+	int getSock() const {
+		return sock_;
+	}
 private:
 	void initialize();
 

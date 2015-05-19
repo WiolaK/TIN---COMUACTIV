@@ -16,8 +16,14 @@ namespace messages {
 
 class AssociationSetupMsg: public Message {
 public:
+	const static MsgCode defaultCode = ASSOCIATION_SETUP;
+
 	AssociationSetupMsg();
 	virtual ~AssociationSetupMsg();
+
+	static Message* create() {
+		return new AssociationSetupMsg();
+	}
 };
 
 } /* namespace messages */

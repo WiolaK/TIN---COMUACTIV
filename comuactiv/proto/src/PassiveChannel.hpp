@@ -8,6 +8,7 @@
 #ifndef PROTO_SRC_PASSIVECHANNEL_HPP_
 #define PROTO_SRC_PASSIVECHANNEL_HPP_
 
+#include "comuactiv_utils.hpp"
 #include "ThreadBase.hpp"
 
 namespace comuactiv {
@@ -19,6 +20,7 @@ public:
 
 	PassiveChannel();
 	PassiveChannel(int sock);
+	PassiveChannel(pAChannel active);
 	virtual ~PassiveChannel();
 
 
