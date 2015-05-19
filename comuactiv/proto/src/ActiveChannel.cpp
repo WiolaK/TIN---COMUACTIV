@@ -7,11 +7,17 @@
 
 #include "ActiveChannel.hpp"
 
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
-#include <stdio.h>
 #include <iostream>
 
 #include "comuactiv_utils.hpp"
+#include "messages/RawMessage.hpp"
 
 using namespace comuactiv::proto;
 
@@ -64,11 +70,34 @@ void ActiveChannel::initialize() {
 	}
 }
 
-void ActiveChannel::writeData(char* data, int size) {
-	LOG("writing: " << data);
-	if (write( sock_, data, size ) == -1) {
-		perror("writing on stream socket");
+void ActiveChannel::writeMessage(messages::pRawMessage msg) {
+	LOG("writing: " << std::string(msg->array, msg->length));
+
+	//writig in loop to be sure that all data is sent
+	for( int remaining = msg->length; remaining > 0; ) {
+		int sent = write( sock_, msg->array, msg->length );
+		if ( sent == -1 ) {
+			perror("writing on stream socket");
+		}
+		remaining-=sent;
 	}
+}
+
+void ActiveChannel::listenResponse() {
+	LOG("listening for response...");
+	char buf[1024];
+	int rval;
+
+	do {
+		if ((rval = read(sock_,buf, 1024)) == -1) {
+			perror("reading stream message");
+		}
+		if (rval == 0) {
+			LOG("ending connection.");
+		} else {
+			LOG("-->" << buf);
+		}
+	} while (rval != 0);;
 }
 
 } /* namespace proto */

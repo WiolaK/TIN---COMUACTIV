@@ -5,19 +5,12 @@
  *      Author: Jan Kumor
  */
 
+#include <comuactiv/ComuactivServerSlot.hpp>
 #include <algorithm>
 #include <iostream>
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <stdio.h>
 #include <memory>
-#include <cstring>
+#include <string>
 
-#include <comuactiv/ComuactivServerSlot.hpp>
 #include "ActiveChannel.hpp"
 #include "PassiveChannel.hpp"
 
@@ -45,18 +38,20 @@ public:
 
 private:
 	int id_;
+	int sock_;
+
 	std::string host_;
 	std::string highPort_;
 	std::string mediumPort_;
 	std::string lowPort_;
 
-	//high is initialized passive
+	//high is initialized as passive then after association turns into active
 	pAChannel aHigh_;
-	pPChannel pHigh_;
-	//medium is listening for events from FE
+
+	//medium is always listening for events from FE therefore passive
 	pPChannel pMedium_;
 
-	//low must be asynchronous thou active and passive
+	//low must be asynchronous therefore active and passive
 	pPChannel pLow_;
 	pAChannel aLow_;
 };
@@ -80,9 +75,9 @@ ComuactivServerSlot::ComuactivServerSlotImpl::ComuactivServerSlotImpl()
 
 ComuactivServerSlot::ComuactivServerSlotImpl::ComuactivServerSlotImpl(int sock)
 : id_(++counter_),
-  pHigh_(new PassiveChannel(sock)),
-  pMedium_(new PassiveChannel()),
-  pLow_(new PassiveChannel()) {
+  sock_(sock),
+  pMedium_(new PassiveChannel(5556, false)),
+  pLow_(new PassiveChannel(5557, false)) {
 	LOG("created.");
 }
 
@@ -114,20 +109,7 @@ void ComuactivServerSlot::run() {
 }
 
 void ComuactivServerSlot::ComuactivServerSlotImpl::run() {
-	host_ = std::string("127.0.0.1");
-	LOG("Initialising connection to: " << host_ << ":" << highPort_);
-	aHigh_ = pAChannel(new ActiveChannel(host_, highPort_));
-
-	pMedium_ = pPChannel(new PassiveChannel());
-	LOG("Input low port: ");
-	std::cin>>lowPort_;
-	LOG("Initialising connection to: " << host_ << ":" << lowPort_);
-	aLow_ = pAChannel(new ActiveChannel(host_, lowPort_));
-	while(true) {
-		LOG("Writing to low");
-		aLow_->writeData("L",1);
-		sleep(1);
-	}
+	pPChannel pHigh = pPChannel(new PassiveChannel(sock_, true));
 }
 
 } /* namespace proto */

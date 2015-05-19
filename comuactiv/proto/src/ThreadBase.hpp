@@ -13,18 +13,31 @@
 namespace comuactiv {
 namespace proto {
 
+/**
+ * \brief Interfejs dla klas zadaniowych działających w oddzielnych wątkach.
+ */
 class ThreadBase {
 public:
 	virtual ~ThreadBase() {}; // body for optimization issues
+	/**
+	 * Metoda wywoływana przez execute po uruchomieniu wątku.
+	 */
     virtual void* run() = 0;
 
 protected:
+    /**
+     * Identyfikator wątku
+     */
     pthread_t tid;
 
+    /**
+     * Metoda execute uruchamiająca klasę zadaniową.
+     */
     friend void* execute(void* arg) {
         return static_cast<ThreadBase*>(arg)->run();
     };
 };
+
 
 void* execute(void* arg);
 

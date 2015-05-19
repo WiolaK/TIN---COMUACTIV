@@ -10,6 +10,7 @@
 
 #include <string>
 
+#include "messages/RawMessage.hpp"
 #include "ThreadBase.hpp"
 
 namespace comuactiv {
@@ -24,11 +25,14 @@ public:
 
 
 	virtual void* run();
-	void writeData(char* data, int size);
+	void writeMessage(messages::pRawMessage msg);
+
+	void listenResponse();
 
 	int getSock() const {
 		return sock_;
 	}
+
 private:
 	void initialize();
 
@@ -37,6 +41,11 @@ private:
 	std::string host_;
 	std::string port_;
 };
+
+/**
+ * Sprytny wskaźnik (std::shared_ptr) na strukturę ActiveChannel
+ */
+typedef std::shared_ptr<ActiveChannel> pAChannel;
 
 } /* namespace proto */
 } /* namespace comuactiv */

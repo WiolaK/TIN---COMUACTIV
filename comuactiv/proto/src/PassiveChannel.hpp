@@ -8,7 +8,10 @@
 #ifndef PROTO_SRC_PASSIVECHANNEL_HPP_
 #define PROTO_SRC_PASSIVECHANNEL_HPP_
 
-#include "comuactiv_utils.hpp"
+#include <memory>
+#include <string>
+
+#include "ActiveChannel.hpp"
 #include "ThreadBase.hpp"
 
 namespace comuactiv {
@@ -19,10 +22,9 @@ public:
 	static int counter_;
 
 	PassiveChannel();
-	PassiveChannel(int sock);
+	PassiveChannel(int arg, bool isSock);
 	PassiveChannel(pAChannel active);
 	virtual ~PassiveChannel();
-
 
 	virtual void* run();
 	int getSock() { return sock_;}
@@ -30,10 +32,17 @@ public:
 private:
 	void initialize();
 	void work();
+	void startThread();
 
 	int id_;
 	int sock_;
+	int port_;
 };
+
+/**
+ * Sprytny wskaźnik (std::shared_ptr) na klasę PassiveChannel
+ */
+typedef std::shared_ptr<PassiveChannel> pPChannel;
 
 } /* namespace proto */
 } /* namespace comuactiv */

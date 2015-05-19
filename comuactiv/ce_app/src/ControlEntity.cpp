@@ -66,7 +66,6 @@ void ControlEntity::start() {
 	std::cout << "CE is listening for incoming connections on port: " << ntohs(server.sin_port) << std::endl;
 
 	listen(sock, 5);
-	std::cout << "Sock: " << sock << std::endl;
 	do {
 		msgsock = accept(sock,(struct sockaddr*) 0,(unsigned int*) 0);
 		if (msgsock == -1 ) {

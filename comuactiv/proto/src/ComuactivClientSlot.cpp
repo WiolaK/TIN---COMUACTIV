@@ -39,13 +39,13 @@ private:
 	std::string mediumPort_;
 	std::string lowPort_;
 
-	//high is active only at connection association so passive
+	//high is active at connection association then turns passive
 	pPChannel pHigh_;
 
-	//medium is active
+	//medium is sending event notifiers to CE so it is active
 	pAChannel aMedium_;
 
-	//low must be asynchronous thou active and passive
+	//low must be asynchronous therefore active and passive channels
 	pAChannel aLow_;
 	pPChannel pLow_;
 };
@@ -57,8 +57,7 @@ ComuactivClientSlot::ComuactivClientSlot(std::string host, std::string highPort)
 
 ComuactivClientSlot::ComuactivClientSlotImpl::ComuactivClientSlotImpl(std::string host, std::string highPort)
 : host_(host),
-  highPort_(highPort),
-  pLow_(new PassiveChannel()) {
+  highPort_(highPort) {
 	LOG("created.");
 }
 /*
@@ -89,15 +88,21 @@ void ComuactivClientSlot::run() {
 }
 
 void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
+	LOG("Creating passive channels");
+	pHigh_ = pPChannel(new PassiveChannel(6666, false));
+	pLow_ = pPChannel(new PassiveChannel(6667, false));
+
 	LOG("Initialising connection to: " << host_ << ":" << highPort_);
 	{
 		pAChannel aHigh = pAChannel(new ActiveChannel(host_, highPort_));
 		MessageFactory::getInstance().initialize();
 		pMessage msg = MessageFactory::getInstance().create(Message::ASSOCIATION_SETUP);
+		msg->setData("6666\n 6667\n");
 		LOG("Writing ASSOCIATION_SETUP to high.");
-		aHigh->writeData(msg->getRaw()->array, msg->getLength());
-		pHigh_ = pPChannel(new PassiveChannel(aHigh));
+		aHigh->writeMessage(msg->getRaw());
+		aHigh->listenResponse();
 	}
+
 
 }
 

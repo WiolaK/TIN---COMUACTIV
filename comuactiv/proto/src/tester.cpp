@@ -17,21 +17,17 @@ using namespace comuactiv::proto::messages;
 
 int main() {
 	AssociationSetupMsg msg;
-
+	msg.setData("Lorem ipsum dolor sit amet consectetur nomen tua viat dolor");
 	std::ofstream out;
 	out.open("test.txt", std::ios::binary);
 
-	uint8_t buffer[1024];
-	msg.writeMessage(buffer);
-	for(int i = 0; i < msg.getLength(); i++)
+	pRawMessage raw = msg.getRaw();
+	for(int i = 0; i < raw->length; i++)
 	{
-		std::cout << buffer[i];
-		out.put(buffer[i]);
+		std::cout << raw->array[i];
+		out.put(raw->array[i]);
 	}
 	std::cout << std::endl;
-	Message msg2;
-	msg2.readMessage(buffer);
-
 	out.close();
 	/*std::ofstream out;
 	out.open("test.txt", std::ios::binary);

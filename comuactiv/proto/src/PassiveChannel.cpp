@@ -15,7 +15,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "ActiveChannel.hpp"
+#include "comuactiv_utils.hpp"
 
 #define LOG(x) std::cout << "PassiveChannel #" << id_ << ": " << x << std::endl
 
@@ -26,21 +26,32 @@ namespace proto {
 
 int PassiveChannel::counter_ = 0;
 
-PassiveChannel::PassiveChannel() {
-	id_ = ++counter_;
-	sock_ = -1;
-	pthread_create(&tid, nullptr, &execute, this);
+PassiveChannel::PassiveChannel()
+: id_(++counter_),
+  sock_(-1),
+  port_(-1) {
+	if( sock_ == -1) {
+		initialize();
+	}
+	startThread();
 }
 
-PassiveChannel::PassiveChannel(int sock)
-: sock_(sock) {
-	id_ = ++counter_;
-	pthread_create(&tid, nullptr, &execute, this);
+PassiveChannel::PassiveChannel(int arg, bool isSock)
+: id_(++counter_) {
+	sock_ = isSock ? arg : -1;
+	port_ = isSock ? 0 : htons(arg);
+
+	startThread();
 }
 
 PassiveChannel::PassiveChannel(pAChannel active)
-: sock_(active->getSock()) {
-	id_ = ++counter_;
+: id_(++counter_),
+  sock_(active->getSock()),
+  port_(0) {
+	startThread();
+}
+
+void PassiveChannel::startThread() {
 	pthread_create(&tid, nullptr, &execute, this);
 }
 
@@ -52,10 +63,10 @@ PassiveChannel::~PassiveChannel() {
 }
 
 void* PassiveChannel::run() {
-	LOG("thread started.");
 	if( sock_ == -1) {
 		initialize();
 	}
+
 	work();
 	LOG("work stopped.");
 	return nullptr;
@@ -75,7 +86,8 @@ void PassiveChannel::initialize() {
 	//binding address to socket
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
-	serverAddress.sin_port = 0;
+
+	serverAddress.sin_port = port_;
 	if (bind(sock_, reinterpret_cast<SocketAddress*>(&serverAddress), sizeof serverAddress) == -1) {
 		perror("binding stream socket");
 		exit(1);
@@ -88,7 +100,9 @@ void PassiveChannel::initialize() {
 	}
 	//printing assigned port
 	LOG("port: " << ntohs(serverAddress.sin_port));
+	port_ = ntohs(serverAddress.sin_port);
 
+	LOG("thread started.");
 	listen(sock_, 1);
 	LOG("is listening really hard ^^");
 
@@ -96,25 +110,25 @@ void PassiveChannel::initialize() {
 	if (sock_ == -1 ) {
 		perror("accept");
 	} else {
-		LOG("incoming connection accepted on port: " << ntohs(serverAddress.sin_port));
+		LOG("incoming connection accepted on port: " << port_);
 	}
 }
 
 void PassiveChannel::work() {
 	LOG("work started.");
-	char buf[1024];
+	char buf[1024] = {0};
 	int rval;
 
-	/*do {
+	do {
 		if ((rval = read(sock_,buf, 1024)) == -1) {
 			perror("reading stream message");
 		}
 		if (rval == 0) {
 			LOG("ending connection.");
 		} else {
-			LOG("-->" << buf);
+			LOG("-->" << std::string(buf,1024));
 		}
-	} while (rval != 0);*/
+	} while (rval != 0);
 }
 
 } /* namespace proto */
