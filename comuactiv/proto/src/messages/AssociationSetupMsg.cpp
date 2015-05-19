@@ -7,13 +7,14 @@
 
 #include "AssociationSetupMsg.hpp"
 
+#include <string>
+
 namespace comuactiv {
 namespace proto {
 namespace messages {
 
 AssociationSetupMsg::AssociationSetupMsg()
 : Message(defaultCode) {
-	// Do nothing
 }
 
 AssociationSetupMsg::~AssociationSetupMsg() {

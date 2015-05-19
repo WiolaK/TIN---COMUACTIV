@@ -49,12 +49,16 @@ private:
 	std::string highPort_;
 	std::string mediumPort_;
 	std::string lowPort_;
+
+	//high is initialized passive
 	pAChannel aHigh_;
-	pAChannel aMedium_;
-	pAChannel aLow_;
 	pPChannel pHigh_;
+	//medium is listening for events from FE
 	pPChannel pMedium_;
+
+	//low must be asynchronous thou active and passive
 	pPChannel pLow_;
+	pAChannel aLow_;
 };
 
 int ComuactivServerSlot::ComuactivServerSlotImpl::counter_ = 0;
@@ -110,28 +114,16 @@ void ComuactivServerSlot::run() {
 }
 
 void ComuactivServerSlot::ComuactivServerSlotImpl::run() {
-	sleep(1);
 	host_ = std::string("127.0.0.1");
-	LOG("Input high port: ");
-	std::cin>>highPort_;
 	LOG("Initialising connection to: " << host_ << ":" << highPort_);
 	aHigh_ = pAChannel(new ActiveChannel(host_, highPort_));
-	sleep(1);
-	LOG("Input medium port: ");
-	std::cin>>mediumPort_;
-	LOG("Initialising connection to: " << host_ << ":" << mediumPort_);
-	aMedium_ = pAChannel(new ActiveChannel(host_, mediumPort_));
+
+	pMedium_ = pPChannel(new PassiveChannel());
 	LOG("Input low port: ");
 	std::cin>>lowPort_;
 	LOG("Initialising connection to: " << host_ << ":" << lowPort_);
 	aLow_ = pAChannel(new ActiveChannel(host_, lowPort_));
 	while(true) {
-		LOG("Writing to high");
-		aHigh_->writeData("H",1);
-		sleep(1);
-		LOG("Writing to medium");
-		aMedium_->writeData("M",1);
-		sleep(1);
 		LOG("Writing to low");
 		aLow_->writeData("L",1);
 		sleep(1);

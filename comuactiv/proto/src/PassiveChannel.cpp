@@ -41,6 +41,7 @@ PassiveChannel::PassiveChannel(int sock)
 PassiveChannel::PassiveChannel(pAChannel active)
 : sock_(active->getSock()) {
 	id_ = ++counter_;
+	pthread_create(&tid, nullptr, &execute, this);
 }
 
 PassiveChannel::~PassiveChannel() {
@@ -62,6 +63,7 @@ void* PassiveChannel::run() {
 
 void PassiveChannel::initialize() {
 	unsigned int length;
+
 	SocketAddressIn serverAddress;
 
 	sock_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -103,7 +105,7 @@ void PassiveChannel::work() {
 	char buf[1024];
 	int rval;
 
-	do {
+	/*do {
 		if ((rval = read(sock_,buf, 1024)) == -1) {
 			perror("reading stream message");
 		}
@@ -112,7 +114,7 @@ void PassiveChannel::work() {
 		} else {
 			LOG("-->" << buf);
 		}
-	} while (rval != 0);
+	} while (rval != 0);*/
 }
 
 } /* namespace proto */

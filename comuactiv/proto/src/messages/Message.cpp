@@ -7,16 +7,9 @@
 
 #include "Message.hpp"
 
-#include <cereal/cereal.hpp>
 namespace comuactiv {
 namespace proto {
 namespace messages {
-
-/*
-Message::Message() {
-	//Do nothing
-}
-*/
 
 uint32_t Message::counter_ = 0;
 

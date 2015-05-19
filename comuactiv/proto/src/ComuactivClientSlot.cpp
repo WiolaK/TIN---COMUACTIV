@@ -92,30 +92,13 @@ void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
 	LOG("Initialising connection to: " << host_ << ":" << highPort_);
 	{
 		pAChannel aHigh = pAChannel(new ActiveChannel(host_, highPort_));
+		MessageFactory::getInstance().initialize();
 		pMessage msg = MessageFactory::getInstance().create(Message::ASSOCIATION_SETUP);
-		msg->getRaw();
 		LOG("Writing ASSOCIATION_SETUP to high.");
-		//aHigh->writeData(msg->getRaw()->array, msg->getLength());
+		aHigh->writeData(msg->getRaw()->array, msg->getLength());
+		pHigh_ = pPChannel(new PassiveChannel(aHigh));
 	}
 
-	std::cin>>mediumPort_;
-	LOG("Initialising connection to: " << host_ << ":" << mediumPort_);
-	aMedium_ = pAChannel(new ActiveChannel(host_, mediumPort_));
-	LOG("Input low port: ");
-	std::cin>>lowPort_;
-	LOG("Initialising connection to: " << host_ << ":" << lowPort_);
-	aLow_ = pAChannel(new ActiveChannel(host_, lowPort_));
-	while(true) {
-
-
-		sleep(1);
-		LOG("Writing to medium");
-		aMedium_->writeData(DATA,1);
-		sleep(1);
-		LOG("Writing to low");
-		aLow_->writeData(DATA,1);
-		sleep(1);
-	}
 }
 
 } /* namespace proto */
