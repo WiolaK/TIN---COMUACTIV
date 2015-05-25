@@ -11,7 +11,8 @@ namespace comuactiv {
 namespace proto {
 namespace messages {
 
-QueryResponseMsg::QueryResponseMsg() {
+QueryResponseMsg::QueryResponseMsg()
+: Message(defaultCode) {
 	// TODO Auto-generated constructor stub
 
 }

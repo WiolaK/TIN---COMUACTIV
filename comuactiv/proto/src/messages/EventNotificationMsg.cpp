@@ -11,7 +11,8 @@ namespace comuactiv {
 namespace proto {
 namespace messages {
 
-EventNotificationMsg::EventNotificationMsg() {
+EventNotificationMsg::EventNotificationMsg()
+: Message(defaultCode) {
 	// TODO Auto-generated constructor stub
 
 }

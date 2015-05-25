@@ -16,6 +16,8 @@ namespace messages {
 
 class PacketRedirectMsg: public Message {
 public:
+	const static MsgCode defaultCode = PACKET_REDIRECT;
+
 	PacketRedirectMsg();
 	virtual ~PacketRedirectMsg();
 };

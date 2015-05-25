@@ -6,24 +6,23 @@
  */
 
 #include <comuactiv/ComuactivClientSlot.hpp>
-#include <unistd.h>
 #include <algorithm>
-#include <cstdint>
 #include <iostream>
 #include <memory>
 
-#include "ActiveChannel.hpp"
-#include "comuactiv_utils.hpp"
+#include "channels/Channel.hpp"
+#include "channels/ProxyChannel.hpp"
+#include "handlers/AssociationSetupResponseHandler.hpp"
+#include "handlers/Handler.hpp"
+#include "messages/AssociationSetupMsg.hpp"
 #include "messages/Message.hpp"
-#include "messages/MessageFactory.hpp"
-#include "PassiveChannel.hpp"
-
-#define DATA "Some msg"
-
-#define LOG(x) std::cout << "COMUACTIVE ClientSlot: " << x << std::endl
+#include "utils/Printer.hpp"
 
 using namespace comuactiv::proto;
 using namespace comuactiv::proto::messages;
+using namespace comuactiv::proto::handlers;
+using namespace comuactiv::proto::channels;
+using namespace comuactiv::proto::utils;
 
 namespace comuactiv {
 namespace proto {
@@ -34,20 +33,22 @@ public:
 	void run();
 
 private:
+	Printer log_;
+
 	std::string host_;
 	std::string highPort_;
 	std::string mediumPort_;
 	std::string lowPort_;
 
 	//high is active at connection association then turns passive
-	pPChannel pHigh_;
+	ProxyChannel high_;
 
 	//medium is sending event notifiers to CE so it is active
-	pAChannel aMedium_;
+	pChannel Medium_;
 
 	//low must be asynchronous therefore active and passive channels
-	pAChannel aLow_;
-	pPChannel pLow_;
+	ProxyChannel aLow_;
+	ProxyChannel pLow_;
 };
 
 ComuactivClientSlot::ComuactivClientSlot(std::string host, std::string highPort)
@@ -56,9 +57,10 @@ ComuactivClientSlot::ComuactivClientSlot(std::string host, std::string highPort)
 }
 
 ComuactivClientSlot::ComuactivClientSlotImpl::ComuactivClientSlotImpl(std::string host, std::string highPort)
-: host_(host),
+: log_(std::string("ComuactivClientSlot#")),
+  host_(host),
   highPort_(highPort) {
-	LOG("created.");
+	log_("created.");
 }
 /*
 ComuactivSlot::ComuactivSlot(const ComuactivSlot& other)
@@ -88,22 +90,23 @@ void ComuactivClientSlot::run() {
 }
 
 void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
-	LOG("Creating passive channels");
-	pHigh_ = pPChannel(new PassiveChannel(6666, false));
-	pLow_ = pPChannel(new PassiveChannel(6667, false));
+	log_("Creating passive channels");
+	pLow_ = ProxyChannel(Channel::PASSIVE);
+	pLow_.start();
 
-	LOG("Initialising connection to: " << host_ << ":" << highPort_);
-	{
-		pAChannel aHigh = pAChannel(new ActiveChannel(host_, highPort_));
-		MessageFactory::getInstance().initialize();
-		pMessage msg = MessageFactory::getInstance().create(Message::ASSOCIATION_SETUP);
-		msg->setData("6666\n 6667\n");
-		LOG("Writing ASSOCIATION_SETUP to high.");
-		aHigh->writeMessage(msg->getRaw());
-		aHigh->listenResponse();
-	}
+	log_(std::string("Initialising connection to: ").append(host_).append(std::string(":")).append(highPort_));
 
+	high_ = ProxyChannel(Channel::ACTIVE);
+	high_.registerHandler(messages::Message::ASSOCIATION_SETUP_RESPONSE, pHandler(new AssociationSetupResponseHandler()) );
+	high_.setPort("5555");
 
+	high_.start();
+
+	pMessage msg = pAssociationSetupMsg( new AssociationSetupMsg( std::string("6666"), std::string("6667") ) );
+	log_("Writing ASSOCIATION_SETUP to high.");
+	high_.writeMessage(msg->getRaw());
+
+	high_.readMessage();
 }
 
 } /* namespace proto */

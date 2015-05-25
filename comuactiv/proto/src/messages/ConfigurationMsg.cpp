@@ -11,7 +11,8 @@ namespace comuactiv {
 namespace proto {
 namespace messages {
 
-ConfigurationMsg::ConfigurationMsg() {
+ConfigurationMsg::ConfigurationMsg()
+: Message(defaultCode) {
 	// TODO Auto-generated constructor stub
 
 }

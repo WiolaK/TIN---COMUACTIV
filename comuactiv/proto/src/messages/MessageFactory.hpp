@@ -18,38 +18,50 @@ namespace proto {
 namespace messages {
 
 /**
- * Abstract factory of COMUACTIV protocol messages. Is a singleton class.
+ * \brief Fabryka komunikatów protokołu COMUACTIV.
+ * Fabryka umożliwia tworzenie zarejestrowanych w niej typów komunikatów protokołu COMUACTIV.
+ * Klasa realizuje wzorzec singletonu, dostęp do funkcjonalności odbywa się przez statyczną instancję.
  */
 class MessageFactory {
 public:
 	/**
-	 * returns instance of singleton MessageFactory.
+	 * Zwraca referencję do instancji fabryki komunikatów protkołu COMUACTIV.
 	 */
 	static MessageFactory& getInstance();
 
-
-	typedef	Message* (*CreateMessageFun)();
 	/**
-	 * register new type in MessageFactory.
+	 * Typ reprezentujący wskaźnik na funkcję tworzącą komunikat.
 	 */
-	bool registerMessage(Message::MsgCode code, CreateMessageFun fun);
+	typedef std::function<pMessage(pRawMessage)> CreateFun;
 
 	/**
-	 * creates specific message basing on message code
+	 * Rejestracja nowego typu w fabryce komunikatów.
+	 * \param code - kod rejestrowanego w fabryce komunikatu będący jednocześnie jego identyfikatorem
+	 * \param fun - wskaźnik na metodę tworzącą instancję konkretyzacji komunikatu
 	 */
-	pMessage create(Message::MsgCode code);
+	bool registerMessage(Message::MsgCode code, CreateFun fun);
 
-	void initialize();
+	/**
+	 * Tworzenie wybranego komunikatu.
+	 * \param code - identyfikator pod którym zarejestrowano dany typ w fabryce
+	 * \param raw - surowa wiadomość, zwykle odczytana z gniazda
+	 */
+	pMessage create(Message::MsgCode code, pRawMessage raw);
 
 private:
-	// singleton pattern
+	// singleton pattern functions
 	MessageFactory();
 	virtual ~MessageFactory();
 	MessageFactory(const MessageFactory&) = delete;
 	MessageFactory& operator=(const MessageFactory&) = delete;
+	// inicjalizacja
+	void initialize();
 
-	typedef	std::map<int, CreateMessageFun> Callbacks;
+	typedef	std::map<Message::MsgCode, CreateFun> Callbacks;
+
 	Callbacks callbacks_;
+
+	static bool isInitialized_;
 };
 
 } /* namespace messages */

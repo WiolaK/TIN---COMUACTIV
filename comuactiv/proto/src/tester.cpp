@@ -16,11 +16,10 @@ using namespace std;
 using namespace comuactiv::proto::messages;
 
 int main() {
-	AssociationSetupMsg msg;
-	msg.setData("Lorem ipsum dolor sit amet consectetur nomen tua viat dolor");
+	AssociationSetupMsg msg("6666", "6667");
+
 	std::ofstream out;
 	out.open("test.txt", std::ios::binary);
-
 	pRawMessage raw = msg.getRaw();
 	for(int i = 0; i < raw->length; i++)
 	{
@@ -28,26 +27,18 @@ int main() {
 		out.put(raw->array[i]);
 	}
 	std::cout << std::endl;
-	out.close();
-	/*std::ofstream out;
-	out.open("test.txt", std::ios::binary);
-	{
-		cereal::BinaryOutputArchive oArchive(out); // Create an output archive
-		oArchive(*m1);
-		oArchive(*m2);
-		oArchive(*m3);
-	}
-	out.close();
 
-	std::ifstream in;
-	in.open("test.txt");
+	AssociationSetupMsg msg2(raw);
+	pRawMessage raw2 = msg2.getRaw();
+	for(int i = 0; i < raw->length; i++)
 	{
-		cereal::BinaryInputArchive iArchive(in); // Create an output archive
-
-		iArchive(*m2); // Write the data to the archive
+		std::cout << raw2->array[i];
+		out.put(raw2->array[i]);
 	}
-	in.close();
-*/
+	std::cout << std::endl;
+
+
+	out.close();
 }
 
 
