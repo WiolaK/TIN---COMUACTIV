@@ -8,7 +8,10 @@
 #ifndef PROTO_SRC_MESSAGES_HEARTBEATMSG_HPP_
 #define PROTO_SRC_MESSAGES_HEARTBEATMSG_HPP_
 
+#include <memory>
+
 #include "Message.hpp"
+#include "RawMessage.hpp"
 
 namespace comuactiv {
 namespace proto {
@@ -18,11 +21,11 @@ class HeartbeatMsg: public Message {
 public:
 	const static MsgCode defaultCode = HEARTBEAT;
 
-	HeartbeatMsg();
+	HeartbeatMsg(pRawMessage raw);
 	virtual ~HeartbeatMsg();
 
-	static Message* create() {
-		return new HeartbeatMsg();
+	static pMessage create(pRawMessage raw) {
+		return pMessage(new HeartbeatMsg(raw));
 	}
 };
 

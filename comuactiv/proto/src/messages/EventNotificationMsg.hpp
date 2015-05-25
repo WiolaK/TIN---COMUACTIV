@@ -16,6 +16,8 @@ namespace messages {
 
 class EventNotificationMsg: public Message {
 public:
+	const static MsgCode defaultCode = EVENT_NOTIFICATION;
+
 	EventNotificationMsg();
 	virtual ~EventNotificationMsg();
 };

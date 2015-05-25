@@ -8,15 +8,28 @@
 #ifndef PROTO_SRC_MESSAGES_FLOWTABLEENTRYUPDATEMSG_HPP_
 #define PROTO_SRC_MESSAGES_FLOWTABLEENTRYUPDATEMSG_HPP_
 
+#include <memory>
+
+#include "Message.hpp"
+#include "RawMessage.hpp"
+
 namespace comuactiv {
 namespace proto {
 namespace messages {
 
-class FlowTableEntryUpdateMsg {
+class FlowTableEntryUpdateMsg: public Message {
 public:
-	FlowTableEntryUpdateMsg();
+	const static MsgCode defaultCode = FLOW_TABLE_ENTRY_UPDATE;
+
+	FlowTableEntryUpdateMsg(pRawMessage raw);
 	virtual ~FlowTableEntryUpdateMsg();
+
+	pMessage create(pRawMessage raw) {
+		return std::shared_ptr<FlowTableEntryUpdateMsg>( new FlowTableEntryUpdateMsg(raw) );
+	}
 };
+
+typedef std::shared_ptr<FlowTableEntryUpdateMsg> pFlowTableEntryUpdateMsg;
 
 } /* namespace messages */
 } /* namespace proto */

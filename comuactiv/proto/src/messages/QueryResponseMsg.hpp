@@ -16,6 +16,8 @@ namespace messages {
 
 class QueryResponseMsg: public Message {
 public:
+	const static MsgCode defaultCode = QUERY_RESPONSE;
+
 	QueryResponseMsg();
 	virtual ~QueryResponseMsg();
 };

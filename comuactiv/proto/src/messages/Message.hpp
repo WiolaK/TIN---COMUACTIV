@@ -25,6 +25,9 @@ namespace messages {
  */
 class Message {
 public:
+	/**
+	 * Kody komunikatów protokołu COMUACTIV.
+	 */
 	enum MsgCode : uint32_t {
 		ASSOCIATION_SETUP = 0x00,
 				ASSOCIATION_SETUP_RESPONSE,
@@ -39,15 +42,23 @@ public:
 				HEARTBEAT
 	};
 
+	struct MessageHeader {
+		/**
+		 * prefiks komunikatu protokołu COMUACTIV, powinien być ustawiany zawsze na "COMUACTIV15\0"
+		 */
+		uint8_t prefix_[12]; // Always set to "COMUACTIV15\0"
+		MsgCode code_;
+		mutable uint32_t length_;
+		uint32_t id_;
+	};
+
 	Message() {
-		memcpy(header_.prefix_, "COMUACTIV15\0", 12);
-		header_.code_ = 0x00;
-		header_.length_ = getLength();
-		header_.id_ = counter_++;
+		//Do nothing
 	}
-
-
-
+	/**
+	 * \brief Destruktor.
+	 * Nic nie robi.
+	 */
 	virtual ~Message();
 
 	/**
@@ -68,6 +79,9 @@ public:
 		return header_.length_;
 	}
 
+	MessageHeader getHeader() const { return header_; }
+	void setHeader(MessageHeader header) { header_ = header; }
+
 	/**
 	 * Pozwala na wypełnienie pola danych wiadomości dowolnym łańcuchem znaków.
 	 * \param data - łańcuch znaków, który ma zostać zapisany w polu danych wiadomości
@@ -77,21 +91,21 @@ public:
 		validLength_ = false;
 	}
 
+	MsgCode getCode() const {
+		return header_.code_;
+	}
 protected:
+	/**
+	 * Konstruktor dla użytku klas dziedziczących po Message.
+	 * \param code - kod konkretnego typu komunikatu
+	 */
 	Message(MsgCode code);
 
 	/**
 	 * Nagłówek wiadomości protokołu COMUACTIV.
 	 */
-	struct MessageHeader {
-		/**
-		 * COMUACTIV message prefix, should be set to COMUACTIV15\0
-		 */
-		uint8_t prefix_[12]; // Always set to "COMUACTIV15\0"
-		uint32_t code_;
-		mutable uint32_t length_;
-		uint32_t id_;
-	} header_;
+	MessageHeader header_;
+
 	std::string data_;
 
 	mutable	bool validLength_;

@@ -12,6 +12,11 @@
 
 namespace comuactiv {
 namespace proto {
+namespace utils {
+
+extern "C" {
+void* execute(void* arg);
+};
 
 /**
  * \brief Interfejs dla klas zadaniowych działających w oddzielnych wątkach.
@@ -22,25 +27,28 @@ public:
 	/**
 	 * Metoda wywoływana przez execute po uruchomieniu wątku.
 	 */
-    virtual void* run() = 0;
+	virtual void* run() = 0;
 
 protected:
-    /**
-     * Identyfikator wątku
-     */
-    pthread_t tid;
+	/**
+	 * Identyfikator wątku
+	 */
+	pthread_t tid;
 
-    /**
-     * Metoda execute uruchamiająca klasę zadaniową.
-     */
-    friend void* execute(void* arg) {
-        return static_cast<ThreadBase*>(arg)->run();
-    };
+	/**
+	 * Metoda execute uruchamiająca klasę zadaniową.
+	 */
+	friend void* execute(void* arg);
 };
 
 
-void* execute(void* arg);
+extern "C" {
+inline void* execute(void* arg) {
+	return static_cast<ThreadBase*>(arg)->run();
+};
+};
 
+} /* namespace utils */
 } /* namespace proto */
 } /* namespace comuactiv */
 

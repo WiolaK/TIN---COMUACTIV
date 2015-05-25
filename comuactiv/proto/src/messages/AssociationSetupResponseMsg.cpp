@@ -11,7 +11,7 @@ namespace comuactiv {
 namespace proto {
 namespace messages {
 
-AssociationSetupResponseMsg::AssociationSetupResponseMsg()
+AssociationSetupResponseMsg::AssociationSetupResponseMsg(pRawMessage raw)
 : Message(defaultCode) {
 	// Do nothing
 }

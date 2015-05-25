@@ -16,6 +16,8 @@ namespace messages {
 
 class AssociationTeardownMsg: public Message {
 public:
+	const static MsgCode defaultCode = ASSOCIATION_TEARDOWN;
+
 	AssociationTeardownMsg();
 	virtual ~AssociationTeardownMsg();
 };

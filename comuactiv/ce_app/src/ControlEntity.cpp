@@ -5,21 +5,15 @@
  *      Author: Jan Kumor
  */
 
-#include <iostream>
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <stdio.h>
-
-#include <cstring>
-
-#include <memory>
-
 #include "ControlEntity.hpp"
+
 #include "../../proto/include/comuactiv/ComuactivServerSlot.hpp"
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <vector>
 
 using namespace comuactiv::ce_app;
 using namespace comuactiv::proto;
@@ -65,6 +59,7 @@ void ControlEntity::start() {
 	}
 	std::cout << "CE is listening for incoming connections on port: " << ntohs(server.sin_port) << std::endl;
 
+	std::vector<ComuactivServerSlot> slots;
 	listen(sock, 5);
 	do {
 		msgsock = accept(sock,(struct sockaddr*) 0,(unsigned int*) 0);
@@ -72,10 +67,8 @@ void ControlEntity::start() {
 			perror("accept");
 		} else {
 			std::cout << "CE: Incoming connection accepted on socket: " << msgsock << std::endl;
-			std::unique_ptr<ComuactivServerSlot> slot(new ComuactivServerSlot(msgsock));
-			slot->run();
+			slots.push_back(ComuactivServerSlot(msgsock, "5556", "5557"));
 		}
-
 	} while(1);
 }
 

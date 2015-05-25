@@ -16,6 +16,8 @@ namespace messages {
 
 class ConfigurationResponseMsg: public Message {
 public:
+	const static MsgCode defaultCode = CONFIGURATION_RESPONSE;
+
 	ConfigurationResponseMsg();
 	virtual ~ConfigurationResponseMsg();
 };

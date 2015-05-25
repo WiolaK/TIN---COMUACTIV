@@ -11,7 +11,7 @@ namespace comuactiv {
 namespace proto {
 namespace messages {
 
-HeartbeatMsg::HeartbeatMsg()
+HeartbeatMsg::HeartbeatMsg(pRawMessage raw)
 : Message(HEARTBEAT) {
 	// TODO Auto-generated constructor stub
 }

@@ -11,7 +11,8 @@ namespace comuactiv {
 namespace proto {
 namespace messages {
 
-AssociationTeardownMsg::AssociationTeardownMsg() {
+AssociationTeardownMsg::AssociationTeardownMsg()
+: Message(defaultCode) {
 	// TODO Auto-generated constructor stub
 
 }

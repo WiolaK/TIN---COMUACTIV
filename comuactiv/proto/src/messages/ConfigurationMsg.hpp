@@ -16,6 +16,8 @@ namespace messages {
 
 class ConfigurationMsg: public Message {
 public:
+	const static MsgCode defaultCode = CONFIGURATION;
+
 	ConfigurationMsg();
 	virtual ~ConfigurationMsg();
 };

@@ -11,7 +11,8 @@ namespace comuactiv {
 namespace proto {
 namespace messages {
 
-PacketRedirectMsg::PacketRedirectMsg() {
+PacketRedirectMsg::PacketRedirectMsg()
+: Message(defaultCode) {
 	// TODO Auto-generated constructor stub
 
 }
