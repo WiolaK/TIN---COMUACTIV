@@ -13,8 +13,6 @@ using namespace comuactiv::server_udp;
 
 int main(int argc, char* argv[])
 {
-	// ServerUDP* server = new ServerUDP;
-
 	ServerUDP* server;
 	server = ServerUDP::getInstance();
 
@@ -26,7 +24,6 @@ int main(int argc, char* argv[])
 
 	cout << socket;
 	cout << port;
-
 
 	return 0;
 }
