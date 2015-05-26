@@ -28,12 +28,16 @@ namespace channels {
 class RealChannel: public utils::ThreadBase, public Channel {
 public:
 	RealChannel() : id_(0), log_(std::string("RealChannel#").append(std::to_string(id_))) {};
-	RealChannel(int id, ChannelMode mode, Handlers handlers, std::string port, int sock): id_(id), log_(std::string("RealChannel#").append(std::to_string(id_))), mode_(mode), handlers_(handlers), port_(port), sock_(sock) {log_("created.");};
+	RealChannel(int id, ChannelMode mode, Handlers handlers, std::string host, std::string port, int sock): id_(id), log_(std::string("RealChannel#").append(std::to_string(id_))), mode_(mode), host_(host), handlers_(handlers), port_(port), sock_(sock) {log_("created.");};
 	virtual ~RealChannel();
 
 	virtual bool start();
 
 	virtual void* run();
+
+	virtual std::string getHost() const {
+		return host_;
+	}
 
 	virtual std::string getPort() const {
 		return port_;
@@ -46,6 +50,7 @@ public:
 	virtual void writeMessage(messages::pRawMessage msg);
 	virtual void writeAndHandleMessage(messages::pRawMessage msg);
 	virtual messages::pMessage readMessage();
+
 	void readAndHandleMessage();
 
 
@@ -58,9 +63,9 @@ private:
 	ChannelMode mode_;
 	Handlers handlers_;
 
+	std::string host_;
 	std::string port_;
 	int sock_;
-	std::string host_;
 
 	void startThread();
 	messages::Message::MessageHeader readHeader();

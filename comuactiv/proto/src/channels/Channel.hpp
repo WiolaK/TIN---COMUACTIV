@@ -33,8 +33,11 @@ public:
 	virtual void writeAndHandleMessage(messages::pRawMessage msg) = 0;
 	virtual messages::pMessage readMessage() = 0;
 
+	virtual std::string getHost() const = 0;
 	virtual std::string getPort() const = 0;
 	virtual int getSock() const = 0;
+
+	//virtual void switchMode() = 0;
 
 	typedef	std::map<messages::Message::MsgCode, handlers::pHandler> Handlers;
 

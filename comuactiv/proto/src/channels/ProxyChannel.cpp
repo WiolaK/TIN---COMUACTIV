@@ -7,11 +7,11 @@
 
 #include "ProxyChannel.hpp"
 
+#include <unistd.h>
 #include <map>
 #include <memory>
 #include <utility>
 
-#include "../utils/Printer.hpp"
 
 using namespace comuactiv::proto::messages;
 using namespace comuactiv::proto::handlers;
@@ -33,7 +33,6 @@ ProxyChannel::ProxyChannel(ChannelMode mode)
 
 }
 ProxyChannel::~ProxyChannel() {
-	// TODO Auto-generated destructor stub
 }
 
 bool ProxyChannel::start() {
@@ -43,6 +42,24 @@ bool ProxyChannel::start() {
 	else {
 		log_("Channel already started.");
 		return false;
+	}
+}
+
+void ProxyChannel::switchMode() {
+	log_(std::string("Switching mode from ").append(mode_==ACTIVE?"ACTIVE to PASSIVE":"PASSIVE to ACTIVE"));
+	sock_ = getChannel()->getSock();
+	real_.reset();
+	isStarted_ = false;
+	handlers_.clear();
+
+	switch(mode_) {
+	case ACTIVE:
+		mode_ = PASSIVE;
+		break;
+
+	case PASSIVE:
+		mode_ = ACTIVE;
+		break;
 	}
 }
 
@@ -74,10 +91,10 @@ bool ProxyChannel::registerHandler(Message::MsgCode code, pHandler handler) {
 }
 
 pRealChannel ProxyChannel::getChannel() const {
-	log_("Real Channel access.");
+	//log_("Real Channel access.");
 	if( !real_ ) {
 		log_("Real Channel creation.");
-		real_ = pRealChannel(new RealChannel(id_, mode_, handlers_, port_, sock_) );
+		real_ = pRealChannel(new RealChannel(id_, mode_, handlers_, host_, port_, sock_) );
 	}
 	return real_;
 }

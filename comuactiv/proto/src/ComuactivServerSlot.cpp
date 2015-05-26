@@ -119,7 +119,7 @@ ComuactivServerSlot::~ComuactivServerSlot() {
 }
 
 ComuactivServerSlot::ComuactivServerSlotImpl::~ComuactivServerSlotImpl() {
-	log_("JOINING THREAD");
+	log_("Joining thread.");
 	pthread_join(tid, nullptr);
 }
 
@@ -149,6 +149,9 @@ void ComuactivServerSlot::ComuactivServerSlotImpl::stageTwo(std::string lowPort)
 
 	pMessage response = pAssociationSetupResponseMsg( new AssociationSetupResponseMsg( lowPort_, mediumPort_ ) );
 	high_.writeMessage(response->getRaw());
+
+	//high_.switchMode();
+	//high_.start();
 }
 
 } /* namespace proto */

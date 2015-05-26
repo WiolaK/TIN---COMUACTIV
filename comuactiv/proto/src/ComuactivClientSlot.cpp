@@ -108,6 +108,7 @@ void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
 			messages::Message::ASSOCIATION_SETUP_RESPONSE,
 			pHandler( new AssociationSetupResponseHandler( aSRHcallback ) )
 			);
+	high_.setHost(host_);
 	high_.setPort(highPort_);
 	high_.start();
 
@@ -121,13 +122,18 @@ void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
 void ComuactivClientSlot::ComuactivClientSlotImpl::stageTwo(std::string mediumPort, std::string lowPort) {
 	mediumPort_ = mediumPort;
 	medium_ = ProxyChannel(Channel::ACTIVE);
+	medium_.setHost(host_);
 	medium_.setPort(mediumPort);
 	medium_.start();
 
 	lowPortActive_ = lowPort;
 	aLow_ = ProxyChannel(Channel::ACTIVE);
+	aLow_.setHost(host_);
 	aLow_.setPort(lowPort);
 	aLow_.start();
+
+	//high_.switchMode();
+	//high_.start();
 }
 
 } /* namespace proto */
