@@ -21,13 +21,21 @@ class AssociationSetupResponseMsg: public Message {
 public:
 	const static MsgCode defaultCode = ASSOCIATION_SETUP_RESPONSE;
 
+	AssociationSetupResponseMsg(std::string mediumPort, std::string lowPort);
+
 	AssociationSetupResponseMsg(pRawMessage raw);
 	virtual ~AssociationSetupResponseMsg();
 
 	static pMessage create(pRawMessage raw) {
 		return pMessage(new AssociationSetupResponseMsg(raw));
 	}
+
+private:
+	std::string mediumPort_;
+	std::string lowPort_;
 };
+
+typedef std::shared_ptr<AssociationSetupResponseMsg> pAssociationSetupResponseMsg;
 
 } /* namespace messages */
 } /* namespace proto */

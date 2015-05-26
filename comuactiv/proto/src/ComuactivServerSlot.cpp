@@ -121,7 +121,7 @@ ComuactivServerSlot::ComuactivServerSlotImpl::~ComuactivServerSlotImpl() {
 void* ComuactivServerSlot::ComuactivServerSlotImpl::run() {
 	log_("STARTING PASSIVE CHANNELS");
 	high_ = ProxyChannel(Channel::PASSIVE);
-	high_.registerHandler(Message::ASSOCIATION_SETUP, pHandler(new AssociationSetupHandler() ) );
+	high_.registerHandler(Message::ASSOCIATION_SETUP, pHandler(new AssociationSetupHandler(high_) ) );
 	high_.setSock(sock_);
 	high_.start();
 

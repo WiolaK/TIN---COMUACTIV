@@ -8,9 +8,15 @@
 #ifndef PROTO_SRC_HANDLERS_ASSOCIATIONSETUPHANDLER_HPP_
 #define PROTO_SRC_HANDLERS_ASSOCIATIONSETUPHANDLER_HPP_
 
-#include "../../include/comuactiv/ComuactivServerSlot.hpp"
+#include "../channels/ProxyChannel.hpp"
 #include "../messages/Message.hpp"
 #include "Handler.hpp"
+
+namespace comuactiv {
+namespace proto {
+class ComuactivServerSlot;
+} /* namespace proto */
+} /* namespace comuactiv */
 
 namespace comuactiv {
 namespace proto {
@@ -18,13 +24,13 @@ namespace handlers {
 
 class AssociationSetupHandler: public Handler {
 public:
-	AssociationSetupHandler() {};
+	AssociationSetupHandler(channels::ProxyChannel& high) : high_(high) {};
 	virtual ~AssociationSetupHandler();
 
 	virtual void operator()(messages::pMessage msg);
 
 private:
-
+	channels::ProxyChannel& high_;
 };
 
 } /* namespace handlers */

@@ -89,6 +89,8 @@ public:
 	void setData(std::string data) {
 		data_ = data;
 		validLength_ = false;
+		//TODO HACK poprawić
+		getLength();
 	}
 
 	MsgCode getCode() const {

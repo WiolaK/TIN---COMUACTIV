@@ -60,7 +60,7 @@ public:
 	void setSock(const int& sock) {
 		sock_ = sock;
 	}
-
+	//TODO move started to Real and proxy
 	bool started() const {
 		return isStarted_;
 	}
