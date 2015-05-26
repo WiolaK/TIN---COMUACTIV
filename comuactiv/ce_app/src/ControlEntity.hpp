@@ -10,6 +10,8 @@
 
 #include <string>
 
+#include "FlowTable.h"
+
 namespace comuactiv {
 namespace ce_app {
 
@@ -23,6 +25,7 @@ private:
 	ControlEntity();
 	ControlEntity(const ControlEntity&) = delete;
 	ControlEntity& operator=(const ControlEntity&) = delete;
+	flowtable::FlowTable flowtable;
 };
 
 } /* namespace ce_app */
