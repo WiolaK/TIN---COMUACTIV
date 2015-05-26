@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <algorithm>
+#include <functional>
 #include <memory>
 
 #include "channels/Channel.hpp"
@@ -17,6 +18,8 @@
 #include "handlers/EventNotificationHandler.hpp"
 #include "handlers/Handler.hpp"
 #include "handlers/HeartbeatHandler.hpp"
+#include "messages/AssociationSetupResponseMsg.hpp"
+
 #include "messages/Message.hpp"
 #include "utils/Printer.hpp"
 #include "utils/ThreadBase.hpp"
@@ -40,6 +43,8 @@ public:
 	virtual ~ComuactivServerSlotImpl();
 
 	virtual void* run();
+
+	void stageTwo(std::string lowPort);
 
 private:
 	int id_;
@@ -120,11 +125,6 @@ ComuactivServerSlot::ComuactivServerSlotImpl::~ComuactivServerSlotImpl() {
 
 void* ComuactivServerSlot::ComuactivServerSlotImpl::run() {
 	log_("STARTING PASSIVE CHANNELS");
-	high_ = ProxyChannel(Channel::PASSIVE);
-	high_.registerHandler(Message::ASSOCIATION_SETUP, pHandler(new AssociationSetupHandler(high_) ) );
-	high_.setSock(sock_);
-	high_.start();
-
 	medium_ = ProxyChannel(Channel::PASSIVE);
 	medium_.registerHandler(Message::EVENT_NOTIFICATION, pHandler(new EventNotificationHandler() ) );
 	medium_.start();
@@ -133,16 +133,22 @@ void* ComuactivServerSlot::ComuactivServerSlotImpl::run() {
 	pLow_.registerHandler(Message::HEARTBEAT, pHandler(new HeartbeatHandler() ) );
 	pLow_.start();
 	//TODO: synchronizacja
-	sleep(1);
-
-	mediumPort_ = medium_.getPort();
-	log_(std::string("Assigned medium port:").append(mediumPort_));
-
-	lowPort_ = pLow_.getPort();
-	log_(std::string("Assigned passive low port:").append(lowPort_));
-
+	sleep(2);
+	high_ = ProxyChannel(Channel::PASSIVE);
+	AssociationSetupHandler::Callback aSHcallback = std::bind(&ComuactivServerSlotImpl::stageTwo, this, std::placeholders::_1);
+	high_.registerHandler(Message::ASSOCIATION_SETUP, pHandler(new AssociationSetupHandler(aSHcallback) ) );
+	high_.setSock(sock_);
+	high_.start();
 
 	return nullptr;
+}
+
+void ComuactivServerSlot::ComuactivServerSlotImpl::stageTwo(std::string lowPort) {
+	mediumPort_ = medium_.getPort();
+	lowPort_ = pLow_.getPort();
+
+	pMessage response = pAssociationSetupResponseMsg( new AssociationSetupResponseMsg( lowPort_, mediumPort_ ) );
+	high_.writeMessage(response->getRaw());
 }
 
 } /* namespace proto */

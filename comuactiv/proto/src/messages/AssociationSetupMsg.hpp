@@ -32,7 +32,7 @@ public:
 	 * \param mediumPort - łańcuch znaków zawierający numer portu na którym otwarto kanał Medium
 	 * \param lowPort - łańcuch znaków zawierający numer portu na którym otwarto kanał Medium
 	 */
-	AssociationSetupMsg(std::string mediumPort, std::string lowPort);
+	AssociationSetupMsg(std::string lowPort);
 
 	AssociationSetupMsg(pRawMessage raw);
 
@@ -42,8 +42,11 @@ public:
 		return std::shared_ptr<AssociationSetupMsg>( new AssociationSetupMsg(raw) );
 	}
 
+	const std::string& getLowPort() {
+		return lowPort_;
+	}
+
 private:
-	std::string mediumPort_;
 	std::string lowPort_;
 };
 

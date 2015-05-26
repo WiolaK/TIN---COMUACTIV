@@ -39,8 +39,6 @@ AssociationSetupResponseMsg::AssociationSetupResponseMsg(pRawMessage raw)
 		data_.assign(raw->array+sizeof(header_), dataLength);
 	}
 
-	std::cout << "DATA:" << data_ << std::endl;
-
 	Tokenizer tokenizer('-');
 	auto tokens = tokenizer(data_);
 

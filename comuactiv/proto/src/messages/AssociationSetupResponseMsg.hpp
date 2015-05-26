@@ -9,6 +9,7 @@
 #define PROTO_SRC_MESSAGES_ASSOCIATIONSETUPRESPONSEMSG_HPP_
 
 #include <memory>
+#include <string>
 
 #include "Message.hpp"
 #include "RawMessage.hpp"
@@ -29,6 +30,9 @@ public:
 	static pMessage create(pRawMessage raw) {
 		return pMessage(new AssociationSetupResponseMsg(raw));
 	}
+
+	const std::string& getMediumPort() {return mediumPort_;}
+	const std::string& getLowPort() {return lowPort_;}
 
 private:
 	std::string mediumPort_;

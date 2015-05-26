@@ -8,6 +8,7 @@
 #include <comuactiv/ComuactivClientSlot.hpp>
 #include <unistd.h>
 #include <algorithm>
+#include <functional>
 #include <memory>
 
 #include "channels/Channel.hpp"
@@ -39,17 +40,19 @@ private:
 	std::string host_;
 	std::string highPort_;
 	std::string mediumPort_;
-	std::string lowPort_;
+	std::string lowPortActive_;
 
 	//high is active at connection association then turns passive
 	ProxyChannel high_;
 
 	//medium is sending event notifiers to CE so it is active
-	pChannel Medium_;
+	ProxyChannel medium_;
 
 	//low must be asynchronous therefore active and passive channels
 	ProxyChannel aLow_;
 	ProxyChannel pLow_;
+
+	void stageTwo(std::string mediumPort, std::string lowPort);
 };
 
 ComuactivClientSlot::ComuactivClientSlot(std::string host, std::string highPort)
@@ -99,16 +102,32 @@ void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
 	log_(std::string("Initialising connection to: ").append(host_).append(std::string(":")).append(highPort_));
 
 	high_ = ProxyChannel(Channel::ACTIVE);
-	high_.registerHandler(messages::Message::ASSOCIATION_SETUP_RESPONSE, pHandler(new AssociationSetupResponseHandler()) );
+	AssociationSetupResponseHandler::Callback aSRHcallback =
+			std::bind(&ComuactivClientSlotImpl::stageTwo, this, std::placeholders::_1, std::placeholders::_2);
+	high_.registerHandler(
+			messages::Message::ASSOCIATION_SETUP_RESPONSE,
+			pHandler( new AssociationSetupResponseHandler( aSRHcallback ) )
+			);
 	high_.setPort(highPort_);
 	high_.start();
 
 	//TODO: synchronizacja
 	sleep(1);
 
-	pMessage msg = pAssociationSetupMsg( new AssociationSetupMsg( std::string("6666"), std::string("6667") ) );
+	pMessage msg = pAssociationSetupMsg( new AssociationSetupMsg( pLow_.getPort() ) );
 	high_.writeAndHandleMessage(msg->getRaw());
+}
 
+void ComuactivClientSlot::ComuactivClientSlotImpl::stageTwo(std::string mediumPort, std::string lowPort) {
+	mediumPort_ = mediumPort;
+	medium_ = ProxyChannel(Channel::ACTIVE);
+	medium_.setPort(mediumPort);
+	medium_.start();
+
+	lowPortActive_ = lowPort;
+	aLow_ = ProxyChannel(Channel::ACTIVE);
+	aLow_.setPort(lowPort);
+	aLow_.start();
 }
 
 } /* namespace proto */

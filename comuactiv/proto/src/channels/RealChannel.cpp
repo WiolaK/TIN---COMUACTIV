@@ -38,15 +38,15 @@ RealChannel::~RealChannel() {
 bool RealChannel::start() {
 	switch(mode_) {
 	case PASSIVE:
-		log_("PASSIVE START");
+		log_("Starting in PASSIVE mode.");
 		if(pthread_create(&tid, nullptr, &execute, this)) {
-			log_(std::string("pthread_create failure errno=").append(std::to_string(errno)));
+			log_(std::string("Pthread_create failure errno=").append(std::to_string(errno)));
 			return false;
 		}
 		break;
 
 	case ACTIVE:
-		log_("ACTIVE START");
+		log_("Starting in ACTIVE mode.");
 		initializeActive();
 		break;
 
@@ -56,13 +56,11 @@ bool RealChannel::start() {
 }
 
 void* RealChannel::run() {
-	log_("RUN");
+	log_("Running.");
 	if( sock_ == -1) {
-		log_("SOCK == -1");
 		initializePassive();
 	}
 	workPassive();
-	log_("work stopped.");
 	return nullptr;
 }
 
@@ -103,7 +101,7 @@ void RealChannel::initializePassive() {
 		perror("opening stream socket");
 		exit(1);
 	}
-	log_(std::string("initialising on socket: ").append(std::to_string(sock_)));
+	log_(std::string("On socket: ").append(std::to_string(sock_)));
 	//binding address to socket
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
@@ -119,35 +117,35 @@ void RealChannel::initializePassive() {
 		perror("getting socket name");
 		exit(1);
 	}
-	log_(std::string("port: ").append(std::to_string(ntohs(serverAddress.sin_port))));
+	log_(std::string("On port: ").append(std::to_string(ntohs(serverAddress.sin_port))));
 	port_ = std::to_string(ntohs(serverAddress.sin_port));
 
 	listen(sock_, 1);
-	log_("is listening really hard ^^");
+	log_("Listening for connection (really hard ^^).");
 
 	sock_ = accept(sock_,(struct sockaddr*) 0,(unsigned int*) 0);
 	if (sock_ == -1 ) {
 		perror("accept");
 	} else {
-		log_(std::string("incoming connection accepted on port: ").append(port_));
+		log_(std::string("Connection accepted on port: ").append(port_));
 	}
 }
 
 void RealChannel::workPassive() {
-	log_("work started.");
+	log_("Work started.");
 	while(true) {
 		pMessage msg( new Message() );
 		try {
-			pMessage msg = readMessage();
-			handle(MessageFactory::getInstance().create(msg->getHeader().code_, msg->getRaw()));
+			readAndHandleMessage();
 		} catch(const connectionEndException& e) {
 			break;
 		}
 	}
+	log_("Work stopped.");
 }
 
 void RealChannel::writeMessage(pRawMessage msg) {
-	log_(std::string("writing: ").append(std::string(msg->array, msg->length)));
+	log_(std::string("Writing-->").append(std::string(msg->array, msg->length)));
 
 	//writig in loop to be sure that all data is sent
 	for( int remaining = msg->length; remaining > 0; ) {
@@ -162,7 +160,7 @@ void RealChannel::writeMessage(pRawMessage msg) {
 void RealChannel::writeAndHandleMessage(messages::pRawMessage msg) {
 	writeMessage(msg);
 	pMessage response = readMessage();
-	handle(response);
+	handle(MessageFactory::getInstance().create(response->getHeader().code_, response->getRaw()));
 }
 
 pMessage RealChannel::readMessage() {
@@ -173,8 +171,8 @@ pMessage RealChannel::readMessage() {
 }
 
 void RealChannel::readAndHandleMessage() {
-	auto msg = readMessage();
-	handle(msg);
+	pMessage msg = readMessage();
+	handle(MessageFactory::getInstance().create(msg->getHeader().code_, msg->getRaw()));
 }
 
 Message::MessageHeader RealChannel::readHeader() {
@@ -191,25 +189,16 @@ Message::MessageHeader RealChannel::readHeader() {
 			perror("reading stream message");
 			exit(1);
 		} else if ( rval == 0) {
-			log_("ending connection.");
+			log_("Ending connection.");
 			throw connectionEndException();
 		} else {
-			log_(std::string(buffer+(bufferSize-bytesToRead), rval));
+			log_(std::string("Reading<--").append(buffer+(bufferSize-bytesToRead), rval));
 		}
 	}
 	Message::MessageHeader hdr;
 	memcpy(&hdr, buffer, bufferSize);
 	delete [] buffer;
 	return hdr;
-}
-
-void RealChannel::handle(messages::pMessage msg) {
-	Handlers::const_iterator iter = handlers_.find(msg->getCode());
-	if(iter == handlers_.end() ) {
-		std::cout << "NO HANDLER FOR: " << msg->getCode() << std::endl;
-	} else {
-		(*(iter->second))(msg);
-	}
 }
 
 std::string RealChannel::readData(int length) {
@@ -220,8 +209,8 @@ std::string RealChannel::readData(int length) {
 		buffer[i] = 0;
 	int rval;
 
-	for( int bytesToRead = bufferSize; bytesToRead > 0 && rval != 0; bytesToRead-=rval) {
-		log_(std::string("Bytes to read: ").append(std::to_string(bytesToRead)));
+	for( int bytesToRead = bufferSize; bytesToRead > 0; bytesToRead-=rval) {
+		log_(std::string("Data bytes to read: ").append(std::to_string(bytesToRead)));
 		rval = read(sock_, buffer+(bufferSize-bytesToRead), bytesToRead);
 		if( rval == -1 ) {
 			perror("reading stream message");
@@ -229,13 +218,22 @@ std::string RealChannel::readData(int length) {
 			log_("ending connection.");
 			throw connectionEndException();
 		} else {
-			log_(std::string(buffer+(bufferSize-bytesToRead), rval));
+			log_(std::string("Reading<--").append(buffer+(bufferSize-bytesToRead), rval));
 		}
 	}
 
 	auto str = std::string(buffer, bufferSize);
 	delete [] buffer;
 	return str;
+}
+
+void RealChannel::handle(messages::pMessage msg) {
+	Handlers::const_iterator iter = handlers_.find(msg->getCode());
+	if(iter == handlers_.end() ) {
+		log_(std::string("No handler for message code: ").append( std::to_string( msg->getCode() ) ) );
+	} else {
+		(*(iter->second))(msg);
+	}
 }
 
 } /* namespace channels */

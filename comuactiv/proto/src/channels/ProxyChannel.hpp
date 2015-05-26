@@ -38,7 +38,7 @@ public:
 	bool registerHandler(messages::Message::MsgCode code, handlers::pHandler handler);
 
 	virtual std::string getPort() const {
-		if(isStarted_) {
+		if(started()) {
 			return getChannel()->getPort();
 		} else {
 			return port_;
@@ -50,7 +50,7 @@ public:
 	}
 
 	virtual int getSock() const {
-		if(isStarted_) {
+		if(started()) {
 			return getChannel()->getSock();
 		} else {
 			return sock_;
@@ -62,6 +62,7 @@ public:
 	}
 	//TODO move started to Real and proxy
 	bool started() const {
+		//log_(std::string("STARTED?").append(std::to_string(isStarted_)));
 		return isStarted_;
 	}
 

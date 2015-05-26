@@ -43,9 +43,9 @@ MessageFactory& MessageFactory::MessageFactory::getInstance() {
 void MessageFactory::initialize() {
 //	typedef boost::mpl::vector<AssociationSetupMsg, AssociationSetupResponseMsg, HeartbeatMsg> MessageTypes;
 //	boost::mpl::for_each< MessageTypes >( RegisterMessage() );
-	this->registerMessage(AssociationSetupMsg::defaultCode, AssociationSetupMsg::create );
-	this->registerMessage(AssociationSetupResponseMsg::defaultCode, AssociationSetupResponseMsg::create );
-	this->registerMessage(HeartbeatMsg::defaultCode, HeartbeatMsg::create );
+	this->registerMessage(AssociationSetupMsg::defaultCode, AssociationSetupMsg::create);
+	this->registerMessage(AssociationSetupResponseMsg::defaultCode, AssociationSetupResponseMsg::create);
+	this->registerMessage(HeartbeatMsg::defaultCode, HeartbeatMsg::create);
 	isInitialized_ = true;
 }
 

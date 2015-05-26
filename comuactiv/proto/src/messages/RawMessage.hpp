@@ -28,7 +28,7 @@ struct RawMessage {
 	 */
 	RawMessage( int length ) :
 		length(length) {
-		std::cout << "Creating raw message" << std::endl;
+		//std::cout << "Creating raw message" << std::endl;
 		array = new char[length];
 	};
 
@@ -36,7 +36,7 @@ struct RawMessage {
 	 * W destruktorze zwalniana jest zaalokowana na bufor pamięć.
 	 */
 	~RawMessage() {
-		std::cout << "Deleting raw message" << std::endl;
+		//std::cout << "Deleting raw message" << std::endl;
 		delete[] array;
 	}
 

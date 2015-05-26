@@ -16,7 +16,7 @@ using namespace std;
 using namespace comuactiv::proto::messages;
 
 int main() {
-	AssociationSetupMsg msg("6666", "6667");
+	AssociationSetupMsg msg("6666");
 
 	std::ofstream out;
 	out.open("test.txt", std::ios::binary);

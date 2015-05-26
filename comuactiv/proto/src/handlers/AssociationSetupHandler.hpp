@@ -8,6 +8,9 @@
 #ifndef PROTO_SRC_HANDLERS_ASSOCIATIONSETUPHANDLER_HPP_
 #define PROTO_SRC_HANDLERS_ASSOCIATIONSETUPHANDLER_HPP_
 
+#include <functional>
+#include <string>
+
 #include "../channels/ProxyChannel.hpp"
 #include "../messages/Message.hpp"
 #include "Handler.hpp"
@@ -24,13 +27,17 @@ namespace handlers {
 
 class AssociationSetupHandler: public Handler {
 public:
-	AssociationSetupHandler(channels::ProxyChannel& high) : high_(high) {};
+	typedef std::function<void(std::string)> Callback;
+
+	//AssociationSetupHandler(channels::ProxyChannel& high) : high_(high) {};
+	AssociationSetupHandler(Callback callback) : callback_(callback) {};
 	virtual ~AssociationSetupHandler();
 
 	virtual void operator()(messages::pMessage msg);
 
 private:
-	channels::ProxyChannel& high_;
+	//channels::ProxyChannel& high_;
+	Callback callback_;
 };
 
 } /* namespace handlers */

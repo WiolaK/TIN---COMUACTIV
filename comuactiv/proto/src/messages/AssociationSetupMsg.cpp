@@ -20,12 +20,11 @@ namespace comuactiv {
 namespace proto {
 namespace messages {
 
-AssociationSetupMsg::AssociationSetupMsg(std::string mediumPort, std::string lowPort)
+AssociationSetupMsg::AssociationSetupMsg(std::string lowPort)
 : Message(defaultCode),
-  mediumPort_(mediumPort),
   lowPort_(lowPort) {
 	std::stringstream ss;
-	ss << mediumPort_ << "-" << lowPort_;
+	ss << lowPort_;
 	this->setData(ss.str());
 }
 
@@ -38,17 +37,14 @@ AssociationSetupMsg::AssociationSetupMsg(pRawMessage raw)
 		data_.assign(raw->array+sizeof(header_), dataLength);
 	}
 
-	std::cout << "DATA:" << data_ << std::endl;
-
 	Tokenizer tokenizer('-');
 	auto tokens = tokenizer(data_);
 
-	if(tokens.size() != 2)
+	if(tokens.size() != 1)
 		std::cout << "BAD MESSAGE!" << std::endl;
 	else
 	{
-		mediumPort_ = tokens[0];
-		lowPort_ = tokens[1];
+		lowPort_ = tokens[0];
 	}
 }
 

@@ -37,10 +37,8 @@ ProxyChannel::~ProxyChannel() {
 }
 
 bool ProxyChannel::start() {
-	if( !isStarted_ ) {
-		log_("PROXY START");
-		isStarted_ = getChannel()->start();
-		return isStarted_;
+	if( !started() ) {
+		return isStarted_ = getChannel()->start();
 	}
 	else {
 		log_("Channel already started.");
@@ -49,21 +47,21 @@ bool ProxyChannel::start() {
 }
 
 void ProxyChannel::writeMessage(messages::pRawMessage msg) {
-	if(isStarted_)
+	if(started())
 		getChannel()->writeMessage(msg);
 	else
 		log_("Channel not started");
 }
 
 void ProxyChannel::writeAndHandleMessage(messages::pRawMessage msg) {
-	if(isStarted_)
+	if(started())
 		getChannel()->writeAndHandleMessage(msg);
 	else
 		log_("Channel not started");
 }
 
 pMessage ProxyChannel::readMessage() {
-	if(isStarted_)
+	if(started())
 		return getChannel()->readMessage();
 	else {
 		log_("Channel not started");
@@ -76,9 +74,9 @@ bool ProxyChannel::registerHandler(Message::MsgCode code, pHandler handler) {
 }
 
 pRealChannel ProxyChannel::getChannel() const {
-	log_("GET CHANNEL");
+	log_("Real Channel access.");
 	if( !real_ ) {
-		log_("REAL CREATION");
+		log_("Real Channel creation.");
 		real_ = pRealChannel(new RealChannel(id_, mode_, handlers_, port_, sock_) );
 	}
 	return real_;
