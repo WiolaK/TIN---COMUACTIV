@@ -6,6 +6,7 @@
  */
 
 #include "ControlEntity.hpp"
+#include "FlowTable.h"
 
 #include "../../proto/include/comuactiv/ComuactivServerSlot.hpp"
 #include <netinet/in.h>
@@ -17,6 +18,7 @@
 
 using namespace comuactiv::ce_app;
 using namespace comuactiv::proto;
+//using namespace flowtable;
 
 namespace comuactiv {
 namespace ce_app {
@@ -27,6 +29,7 @@ ControlEntity::ControlEntity() {
 
 ControlEntity& ControlEntity::ControlEntity::getInstance() {
 	static ControlEntity instance;
+//	static FlowTable ft = new FlowTable;
 	return instance;
 }
 
@@ -58,6 +61,8 @@ void ControlEntity::start(std::string port) {
 		exit(1);
 	}
 	std::cout << "CE is listening for incoming connections on port: " << ntohs(server.sin_port) << std::endl;
+
+//	ft.checkTable();
 
 	std::vector<ComuactivServerSlot> slots;
 	listen(sock, 5);

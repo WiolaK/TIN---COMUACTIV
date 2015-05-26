@@ -1,0 +1,7 @@
+<FLOWTABLE>
+    <MESSAGE>
+        <FROM> 127.0.0.1 </FROM>
+        <TO> 127.0.0.1 5555 </TO>
+        <PRIORITY> 10 </PRIORITY>
+    </MESSAGE>
+</FLOWTABLE>

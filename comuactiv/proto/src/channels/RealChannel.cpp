@@ -185,10 +185,11 @@ Message::MessageHeader RealChannel::readHeader() {
 		buffer[i] = 0;
 	int rval;
 
-	for( int bytesToRead = bufferSize; bytesToRead > 0 && rval != 0; bytesToRead-=rval) {
+	for( int bytesToRead = bufferSize; bytesToRead > 0; bytesToRead-=rval) {
 		rval = read(sock_, buffer+(bufferSize-bytesToRead), bytesToRead);
 		if( rval == -1 ) {
 			perror("reading stream message");
+			exit(1);
 		} else if ( rval == 0) {
 			log_("ending connection.");
 			throw connectionEndException();
