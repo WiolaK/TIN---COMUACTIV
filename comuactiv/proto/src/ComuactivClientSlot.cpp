@@ -100,7 +100,7 @@ void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
 
 	high_ = ProxyChannel(Channel::ACTIVE);
 	high_.registerHandler(messages::Message::ASSOCIATION_SETUP_RESPONSE, pHandler(new AssociationSetupResponseHandler()) );
-	high_.setPort("5555");
+	high_.setPort(highPort_);
 	high_.start();
 
 	//TODO: synchronizacja

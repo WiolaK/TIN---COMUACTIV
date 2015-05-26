@@ -30,7 +30,7 @@ ControlEntity& ControlEntity::ControlEntity::getInstance() {
 	return instance;
 }
 
-void ControlEntity::start() {
+void ControlEntity::start(std::string port) {
 	std::cout << "CE Started" << std::endl;
 
 	int sock;
@@ -46,7 +46,7 @@ void ControlEntity::start() {
 	/* dowiaz adres do gniazda */
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons(CE_PORT);
+	server.sin_port = htons(atoi(port.c_str()));
 	if (bind(sock, (struct sockaddr *) &server, sizeof server) == -1) {
 		perror("binding stream socket");
 		exit(1);
