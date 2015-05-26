@@ -16,17 +16,12 @@ namespace comuactiv {
 namespace proto {
 namespace handlers {
 
-AssociationSetupHandler::AssociationSetupHandler() {
-	// TODO Auto-generated constructor stub
-
-}
-
 AssociationSetupHandler::~AssociationSetupHandler() {
 	// TODO Auto-generated destructor stub
 }
 
 void AssociationSetupHandler::operator()(pMessage msg) {
-	std::cout << "Handler!" << std::endl;
+	std::cout << "AssociationSetup Handler" << std::endl;
 }
 
 } /* namespace handlers */

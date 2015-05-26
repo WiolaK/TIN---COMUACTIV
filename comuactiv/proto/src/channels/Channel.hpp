@@ -28,9 +28,13 @@ public:
 
 	virtual ~Channel() {}; //body for optimisation issues
 
-	virtual void start() = 0;
+	virtual bool start() = 0;
 	virtual void writeMessage(messages::pRawMessage msg) = 0;
+	virtual void writeAndHandleMessage(messages::pRawMessage msg) = 0;
 	virtual messages::pMessage readMessage() = 0;
+
+	virtual std::string getPort() const = 0;
+	virtual int getSock() const = 0;
 
 	typedef	std::map<messages::Message::MsgCode, handlers::pHandler> Handlers;
 

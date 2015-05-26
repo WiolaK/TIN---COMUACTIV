@@ -35,17 +35,24 @@ RealChannel::~RealChannel() {
 	log_("Closed.");
 }
 
-void RealChannel::start() {
-	if( mode_ == PASSIVE ) {
+bool RealChannel::start() {
+	switch(mode_) {
+	case PASSIVE:
 		log_("PASSIVE START");
 		if(pthread_create(&tid, nullptr, &execute, this)) {
 			log_(std::string("pthread_create failure errno=").append(std::to_string(errno)));
+			return false;
 		}
-	} else {
+		break;
+
+	case ACTIVE:
 		log_("ACTIVE START");
 		initializeActive();
+		break;
+
 	}
-	log_("EXITING START");
+	return true;
+
 }
 
 void* RealChannel::run() {
@@ -112,9 +119,8 @@ void RealChannel::initializePassive() {
 		perror("getting socket name");
 		exit(1);
 	}
-	//printing assigned port
 	log_(std::string("port: ").append(std::to_string(ntohs(serverAddress.sin_port))));
-	port_ = ntohs(serverAddress.sin_port);
+	port_ = std::to_string(ntohs(serverAddress.sin_port));
 
 	listen(sock_, 1);
 	log_("is listening really hard ^^");
@@ -153,11 +159,22 @@ void RealChannel::writeMessage(pRawMessage msg) {
 	}
 }
 
+void RealChannel::writeAndHandleMessage(messages::pRawMessage msg) {
+	writeMessage(msg);
+	pMessage response = readMessage();
+	handle(response);
+}
+
 pMessage RealChannel::readMessage() {
 	pMessage msg(new Message());
 	msg->setHeader(readHeader());
 	msg->setData( readData( msg->getHeader().length_-sizeof(Message::MessageHeader) ) );
 	return msg;
+}
+
+void RealChannel::readAndHandleMessage() {
+	auto msg = readMessage();
+	handle(msg);
 }
 
 Message::MessageHeader RealChannel::readHeader() {
@@ -183,6 +200,15 @@ Message::MessageHeader RealChannel::readHeader() {
 	memcpy(&hdr, buffer, bufferSize);
 	delete [] buffer;
 	return hdr;
+}
+
+void RealChannel::handle(messages::pMessage msg) {
+	Handlers::const_iterator iter = handlers_.find(msg->getCode());
+	if(iter == handlers_.end() ) {
+		std::cout << "NO HANDLER FOR: " << msg->getCode() << std::endl;
+	} else {
+		(*(iter->second))(msg);
+	}
 }
 
 std::string RealChannel::readData(int length) {

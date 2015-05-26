@@ -29,35 +29,47 @@ public:
 	ProxyChannel(ChannelMode mode);
 	virtual ~ProxyChannel();
 
-	virtual void start();
+	virtual bool start();
 
 	virtual void writeMessage(messages::pRawMessage msg);
-
+	virtual void writeAndHandleMessage(messages::pRawMessage msg);
 	virtual messages::pMessage readMessage();
 
 	bool registerHandler(messages::Message::MsgCode code, handlers::pHandler handler);
 
-	std::string getPort() const {
-		return port_;
+	virtual std::string getPort() const {
+		if(isStarted_) {
+			return getChannel()->getPort();
+		} else {
+			return port_;
+		}
 	}
 
 	void setPort(const std::string& port) {
 		port_.assign(port);
 	}
 
-	int getSock() const {
-		return sock_;
+	virtual int getSock() const {
+		if(isStarted_) {
+			return getChannel()->getSock();
+		} else {
+			return sock_;
+		}
 	}
 
 	void setSock(const int& sock) {
 		sock_ = sock;
 	}
 
+	bool started() const {
+		return isStarted_;
+	}
+
 private:
 	int id_;
 	utils::Printer log_;
 
-	pRealChannel real_;
+	mutable pRealChannel real_;
 	bool isStarted_;
 
 	ChannelMode mode_;
@@ -66,7 +78,7 @@ private:
 	std::string port_;
 	int sock_;
 
-	pRealChannel getChannel();
+	pRealChannel getChannel() const;
 };
 
 } /* namespace channels */

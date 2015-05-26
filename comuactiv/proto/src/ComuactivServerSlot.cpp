@@ -7,13 +7,16 @@
 
 #include <comuactiv/ComuactivServerSlot.hpp>
 #include <pthread.h>
+#include <unistd.h>
 #include <algorithm>
 #include <memory>
 
 #include "channels/Channel.hpp"
 #include "channels/ProxyChannel.hpp"
 #include "handlers/AssociationSetupHandler.hpp"
+#include "handlers/EventNotificationHandler.hpp"
 #include "handlers/Handler.hpp"
+#include "handlers/HeartbeatHandler.hpp"
 #include "messages/Message.hpp"
 #include "utils/Printer.hpp"
 #include "utils/ThreadBase.hpp"
@@ -53,11 +56,11 @@ private:
 	ProxyChannel high_;
 
 	//medium is always listening for events from FE therefore passive
-	pChannel medium_;
+	ProxyChannel medium_;
 
 	//low must be asynchronous therefore active and passive
-	pChannel pLow_;
-	pChannel aLow_;
+	ProxyChannel pLow_;
+	ProxyChannel aLow_;
 };
 
 int ComuactivServerSlot::ComuactivServerSlotImpl::counter_ = 0;
@@ -116,11 +119,28 @@ ComuactivServerSlot::ComuactivServerSlotImpl::~ComuactivServerSlotImpl() {
 }
 
 void* ComuactivServerSlot::ComuactivServerSlotImpl::run() {
-	log_("RUN");
+	log_("STARTING PASSIVE CHANNELS");
 	high_ = ProxyChannel(Channel::PASSIVE);
 	high_.registerHandler(Message::ASSOCIATION_SETUP, pHandler(new AssociationSetupHandler() ) );
 	high_.setSock(sock_);
 	high_.start();
+
+	medium_ = ProxyChannel(Channel::PASSIVE);
+	medium_.registerHandler(Message::EVENT_NOTIFICATION, pHandler(new EventNotificationHandler() ) );
+	medium_.start();
+
+	pLow_ = ProxyChannel(Channel::PASSIVE);
+	pLow_.registerHandler(Message::HEARTBEAT, pHandler(new HeartbeatHandler() ) );
+	pLow_.start();
+	//TODO: synchronizacja
+	sleep(1);
+
+	mediumPort_ = medium_.getPort();
+	log_(std::string("Assigned medium port:").append(mediumPort_));
+
+	lowPort_ = pLow_.getPort();
+	log_(std::string("Assigned passive low port:").append(lowPort_));
+
 
 	return nullptr;
 }

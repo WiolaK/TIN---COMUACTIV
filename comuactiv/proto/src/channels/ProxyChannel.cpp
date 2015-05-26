@@ -36,15 +36,15 @@ ProxyChannel::~ProxyChannel() {
 	// TODO Auto-generated destructor stub
 }
 
-void ProxyChannel::start() {
+bool ProxyChannel::start() {
 	if( !isStarted_ ) {
 		log_("PROXY START");
-		getChannel()->start();
-		isStarted_ = true;
-		log_("EXITING PROXY START");
+		isStarted_ = getChannel()->start();
+		return isStarted_;
 	}
 	else {
 		log_("Channel already started.");
+		return false;
 	}
 }
 
@@ -55,8 +55,14 @@ void ProxyChannel::writeMessage(messages::pRawMessage msg) {
 		log_("Channel not started");
 }
 
+void ProxyChannel::writeAndHandleMessage(messages::pRawMessage msg) {
+	if(isStarted_)
+		getChannel()->writeAndHandleMessage(msg);
+	else
+		log_("Channel not started");
+}
+
 pMessage ProxyChannel::readMessage() {
-	log_("READ MESSAGE");
 	if(isStarted_)
 		return getChannel()->readMessage();
 	else {
@@ -69,14 +75,14 @@ bool ProxyChannel::registerHandler(Message::MsgCode code, pHandler handler) {
 	return ( handlers_.insert( std::pair<Message::MsgCode, pHandler>(code, handler) ) ).second;
 }
 
-pRealChannel ProxyChannel::getChannel() {
-		log_("GET CHANNEL");
-		if( !real_ ) {
-			log_("REAL CREATION");
-			real_ = pRealChannel(new RealChannel(id_, mode_, handlers_, port_, sock_) );
-		}
-		return real_;
+pRealChannel ProxyChannel::getChannel() const {
+	log_("GET CHANNEL");
+	if( !real_ ) {
+		log_("REAL CREATION");
+		real_ = pRealChannel(new RealChannel(id_, mode_, handlers_, port_, sock_) );
 	}
+	return real_;
+}
 
 } /* namespace channels */
 } /* namespace proto */

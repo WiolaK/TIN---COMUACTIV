@@ -45,7 +45,7 @@ RealChannelActive::~RealChannelActive() {
 	LOG("Closed.");
 }
 
-void RealChannelActive::start() {
+bool RealChannelActive::start() {
 	LOG("ACTIVE START");
 	initializeActive();
 }

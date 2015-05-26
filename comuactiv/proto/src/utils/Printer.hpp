@@ -22,7 +22,7 @@ public:
 	Printer(std::string name) : name_(name) {};
 	virtual ~Printer() {};
 
-	void operator()(std::string log) {
+	void operator()(std::string log) const {
 		std::lock_guard<std::mutex> lock(mtx_);
 		std::cout << name_ << ": " << log << std::endl;
 	}

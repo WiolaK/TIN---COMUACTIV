@@ -6,14 +6,15 @@
  */
 
 #include <comuactiv/ComuactivClientSlot.hpp>
+#include <unistd.h>
 #include <algorithm>
-#include <iostream>
 #include <memory>
 
 #include "channels/Channel.hpp"
 #include "channels/ProxyChannel.hpp"
 #include "handlers/AssociationSetupResponseHandler.hpp"
 #include "handlers/Handler.hpp"
+#include "handlers/HeartbeatHandler.hpp"
 #include "messages/AssociationSetupMsg.hpp"
 #include "messages/Message.hpp"
 #include "utils/Printer.hpp"
@@ -92,6 +93,7 @@ void ComuactivClientSlot::run() {
 void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
 	log_("Creating passive channels");
 	pLow_ = ProxyChannel(Channel::PASSIVE);
+	pLow_.registerHandler( Message::HEARTBEAT, pHandler(new HeartbeatHandler() ) );
 	pLow_.start();
 
 	log_(std::string("Initialising connection to: ").append(host_).append(std::string(":")).append(highPort_));
@@ -99,14 +101,14 @@ void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
 	high_ = ProxyChannel(Channel::ACTIVE);
 	high_.registerHandler(messages::Message::ASSOCIATION_SETUP_RESPONSE, pHandler(new AssociationSetupResponseHandler()) );
 	high_.setPort("5555");
-
 	high_.start();
 
-	pMessage msg = pAssociationSetupMsg( new AssociationSetupMsg( std::string("6666"), std::string("6667") ) );
-	log_("Writing ASSOCIATION_SETUP to high.");
-	high_.writeMessage(msg->getRaw());
+	//TODO: synchronizacja
+	sleep(1);
 
-	high_.readMessage();
+	pMessage msg = pAssociationSetupMsg( new AssociationSetupMsg( std::string("6666"), std::string("6667") ) );
+	high_.writeAndHandleMessage(msg->getRaw());
+
 }
 
 } /* namespace proto */

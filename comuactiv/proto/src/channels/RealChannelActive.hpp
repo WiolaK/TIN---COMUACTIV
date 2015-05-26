@@ -30,7 +30,7 @@ public:
 	RealChannelActive(int id, ChannelMode mode, Handlers handlers, std::string port, int sock): id_(id), mode_(mode), handlers_(handlers), port_(port), sock_(sock) {};
 	virtual ~RealChannelActive();
 
-	virtual void start();
+	virtual bool start();
 
 	int getSock() const {
 		return sock_;
