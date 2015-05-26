@@ -18,7 +18,7 @@
 
 using namespace comuactiv::ce_app;
 using namespace comuactiv::proto;
-//using namespace flowtable;
+using namespace flowtable;
 
 namespace comuactiv {
 namespace ce_app {
@@ -62,7 +62,8 @@ void ControlEntity::start(std::string port) {
 	}
 	std::cout << "CE is listening for incoming connections on port: " << ntohs(server.sin_port) << std::endl;
 
-//	ft.checkTable();
+	flowtable.loadTable();
+	flowtable.checkTable();
 
 	std::vector<ComuactivServerSlot> slots;
 	listen(sock, 5);

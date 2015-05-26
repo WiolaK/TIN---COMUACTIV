@@ -26,12 +26,18 @@ void FlowTable::loadTable() {
 
 int FlowTable::checkTable() {
 	XMLText* textNode;
+	XMLElement *element;
+//	element = table.FirstChildElement("FLOWTABLE");
+//	element = element->FirstChildElement("ENTRY");
+//	element = element->FirstChildElement("FROM");
+//	textNode = element->FirstChild()->ToText();
 	for(int i=1; i<2; i++){
-		textNode = table.FirstChildElement("FROM")->FirstChild()->ToText();
-		from = textNode->Value();
+
+//		textNode = table.FirstChildElement("FLOWTABLE")->FirstChildElement("ENTRY")->FirstChildElement("FROM")->FirstChild()->ToText();
+//		from = textNode->Value();
 	}
 
-	std::cout << from << std::endl;
+//	printf("%s \n", from);
 
 	return 0;
 }
