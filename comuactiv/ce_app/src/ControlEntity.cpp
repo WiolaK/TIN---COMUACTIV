@@ -9,6 +9,8 @@
 #include "FlowTable.h"
 
 #include "../../proto/include/comuactiv/ComuactivServerSlot.hpp"
+
+#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <cstdio>
@@ -68,12 +70,15 @@ void ControlEntity::start(std::string port) {
 	std::vector<ComuactivServerSlot> slots;
 	listen(sock, 5);
 	do {
-		msgsock = accept(sock,(struct sockaddr*) 0,(unsigned int*) 0);
+		struct sockaddr connectionAddres;
+		unsigned int addrLen = sizeof(struct sockaddr);
+		msgsock = accept(sock, &connectionAddres, &addrLen);
 		if (msgsock == -1 ) {
 			perror("accept");
 		} else {
-			std::cout << "CE: Incoming connection accepted on socket: " << msgsock << std::endl;
-			slots.push_back(ComuactivServerSlot(msgsock, "5556", "5557"));
+			std::string host(inet_ntoa( reinterpret_cast<struct sockaddr_in*>(&connectionAddres)->sin_addr ) );
+			std::cout << "CE: Incoming connection from: " << host << " accepted on socket: " << msgsock << std::endl;
+			slots.push_back(ComuactivServerSlot(msgsock, host));
 		}
 	} while(1);
 }

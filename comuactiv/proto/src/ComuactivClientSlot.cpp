@@ -132,8 +132,8 @@ void ComuactivClientSlot::ComuactivClientSlotImpl::stageTwo(std::string mediumPo
 	aLow_.setPort(lowPort);
 	aLow_.start();
 
-	//high_.switchMode();
-	//high_.start();
+	high_.switchMode();
+	high_.start();
 }
 
 } /* namespace proto */

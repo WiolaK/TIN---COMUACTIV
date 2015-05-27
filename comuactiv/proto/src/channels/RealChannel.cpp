@@ -127,13 +127,13 @@ void RealChannel::initializePassive() {
 	log_("Listening for connection (really hard ^^).");
 
 	SocketAddress connectionAddres;
-	sock_ = accept(sock_, /*&connectionAddres*/(SocketAddress*) 0, (unsigned int*) 0);
+	unsigned int addrLen = sizeof(SocketAddress);
+	sock_ = accept(sock_, &connectionAddres/*(SocketAddress*) 0*/, &addrLen/*(unsigned int*) 0*/);
 	if (sock_ == -1 ) {
 		perror("accept");
 	} else {
-		log_(std::string("Connection accepted on port: ").append(port_));
-		//host_.assign( inet_ntoa( reinterpret_cast<SocketAddressIn*>(&connectionAddres)->sin_addr ) );
-		//log_(std::string("From: ").append(host_));
+		host_.assign( inet_ntoa( reinterpret_cast<SocketAddressIn*>(&connectionAddres)->sin_addr ) );
+		log_(std::string("Connection from: ").append(host_).append("accepted on port: ").append(port_));
 	}
 
 }
