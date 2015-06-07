@@ -17,7 +17,7 @@ namespace proto {
 class ComuactivServerSlot {
 public:
 	ComuactivServerSlot();
-	ComuactivServerSlot(int sock, std::string mediumPort, std::string lowPort);
+	ComuactivServerSlot(int sock, std::string host);
 //	ComuactivSlot(const ComuactivSlot&);           	// Copy constructor
 	ComuactivServerSlot(ComuactivServerSlot&&);
 	ComuactivServerSlot& operator=(const ComuactivServerSlot&);

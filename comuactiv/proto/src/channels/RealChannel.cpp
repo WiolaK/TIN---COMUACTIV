@@ -7,11 +7,13 @@
 
 #include "RealChannel.hpp"
 
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <pthread.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -31,8 +33,8 @@ namespace channels {
 RealChannel::~RealChannel() {
 	pthread_join(tid, nullptr);
 	log_("Thread joined.");
-	close(sock_);
-	log_("Closed.");
+	/*close(sock_);
+	log_("Closed.");*/
 }
 
 bool RealChannel::start() {
@@ -47,7 +49,9 @@ bool RealChannel::start() {
 
 	case ACTIVE:
 		log_("Starting in ACTIVE mode.");
-		initializeActive();
+		if(sock_ == -1 ) {
+			initializeActive();
+		}
 		break;
 
 	}
@@ -76,9 +80,8 @@ void RealChannel::initializeActive() {
 	}
 	//Resolving address
 	serverAddress.sin_family = AF_INET;
-	//hostEntry = gethostbyname(host_.c_str());
-	const char host_[] = "127.0.0.1";
-	hostEntry = gethostbyname(host_);
+	log_(host_);
+	hostEntry = gethostbyname(host_.c_str());
 	if (hostEntry == nullptr) {
 		std::cerr << host_ << " : unknown host" << std::endl;
 		exit(2);
@@ -123,12 +126,16 @@ void RealChannel::initializePassive() {
 	listen(sock_, 1);
 	log_("Listening for connection (really hard ^^).");
 
-	sock_ = accept(sock_,(struct sockaddr*) 0,(unsigned int*) 0);
+	SocketAddress connectionAddres;
+	unsigned int addrLen = sizeof(SocketAddress);
+	sock_ = accept(sock_, &connectionAddres/*(SocketAddress*) 0*/, &addrLen/*(unsigned int*) 0*/);
 	if (sock_ == -1 ) {
 		perror("accept");
 	} else {
-		log_(std::string("Connection accepted on port: ").append(port_));
+		host_.assign( inet_ntoa( reinterpret_cast<SocketAddressIn*>(&connectionAddres)->sin_addr ) );
+		log_(std::string("Connection from: ").append(host_).append("accepted on port: ").append(port_));
 	}
+
 }
 
 void RealChannel::workPassive() {

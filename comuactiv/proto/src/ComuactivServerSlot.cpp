@@ -19,7 +19,6 @@
 #include "handlers/Handler.hpp"
 #include "handlers/HeartbeatHandler.hpp"
 #include "messages/AssociationSetupResponseMsg.hpp"
-
 #include "messages/Message.hpp"
 #include "utils/Printer.hpp"
 #include "utils/ThreadBase.hpp"
@@ -39,7 +38,7 @@ public:
 	static int counter_;
 
 	ComuactivServerSlotImpl();
-	ComuactivServerSlotImpl(int sock, std::string mediumPort, std::string lowPort);
+	ComuactivServerSlotImpl(int sock, std::string host);
 	virtual ~ComuactivServerSlotImpl();
 
 	virtual void* run();
@@ -75,8 +74,8 @@ ComuactivServerSlot::ComuactivServerSlot()
 	// do nothing
 }
 
-ComuactivServerSlot::ComuactivServerSlot(int sock, std::string mediumPort, std::string lowPort)
-: slot_(new ComuactivServerSlotImpl(sock, mediumPort, lowPort)) {
+ComuactivServerSlot::ComuactivServerSlot(int sock, std::string host)
+: slot_(new ComuactivServerSlotImpl(sock, host)) {
 	// do nothing
 }
 
@@ -85,12 +84,11 @@ ComuactivServerSlot::ComuactivServerSlotImpl::ComuactivServerSlotImpl()
 
 }
 
-ComuactivServerSlot::ComuactivServerSlotImpl::ComuactivServerSlotImpl(int sock, std::string mediumPort, std::string lowPort)
+ComuactivServerSlot::ComuactivServerSlotImpl::ComuactivServerSlotImpl(int sock, std::string host)
 : id_(++counter_),
   log_(std::string("ComuactivServerSlot#").append(std::to_string(id_))),
   sock_(sock),
-  mediumPort_(mediumPort),
-  lowPort_(lowPort) {
+  host_(host) {
 	log_("created.");
 	pthread_create(&tid, nullptr, &execute, this);
 }
@@ -119,7 +117,7 @@ ComuactivServerSlot::~ComuactivServerSlot() {
 }
 
 ComuactivServerSlot::ComuactivServerSlotImpl::~ComuactivServerSlotImpl() {
-	log_("JOINING THREAD");
+	log_("Joining thread.");
 	pthread_join(tid, nullptr);
 }
 
@@ -147,8 +145,17 @@ void ComuactivServerSlot::ComuactivServerSlotImpl::stageTwo(std::string lowPort)
 	mediumPort_ = medium_.getPort();
 	lowPort_ = pLow_.getPort();
 
+	aLow_ = ProxyChannel(Channel::ACTIVE);
+	aLow_.setHost(high_.getHost());
+	aLow_.setPort(lowPort);
+	aLow_.start();
+
 	pMessage response = pAssociationSetupResponseMsg( new AssociationSetupResponseMsg( lowPort_, mediumPort_ ) );
 	high_.writeMessage(response->getRaw());
+
+
+	//high_.switchMode();
+	//high_.start();
 }
 
 } /* namespace proto */

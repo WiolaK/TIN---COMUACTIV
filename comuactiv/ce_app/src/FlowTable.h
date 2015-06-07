@@ -8,6 +8,9 @@
 #ifndef COMUACTIV_CE_APP_FLOWTABLE_H_
 #define COMUACTIV_CE_APP_FLOWTABLE_H_
 
+#include <iostream>
+#include <map>
+#include <string>
 #include "tinyxml2.h"
 
 using namespace tinyxml2;
@@ -19,6 +22,7 @@ private:
 	const char *to;
 	const char *priority;
 	XMLDocument table;
+	std::map<std::string, std::string> ftmap;
 
 public:
 	FlowTable();
@@ -26,6 +30,7 @@ public:
 
 	void loadTable();
 	int checkTable();
+	std::map<std::string, std::string> getFTMap();
 
 };
 }

@@ -30,6 +30,7 @@ public:
 	virtual ~ProxyChannel();
 
 	virtual bool start();
+	void switchMode();
 
 	virtual void writeMessage(messages::pRawMessage msg);
 	virtual void writeAndHandleMessage(messages::pRawMessage msg);
@@ -49,6 +50,18 @@ public:
 		port_.assign(port);
 	}
 
+	virtual std::string getHost() const {
+		if(started()) {
+			return getChannel()->getPort();
+		} else {
+			return port_;
+		}
+	}
+
+	void setHost(const std::string host) {
+		host_ = host;
+	}
+
 	virtual int getSock() const {
 		if(started()) {
 			return getChannel()->getSock();
@@ -60,7 +73,8 @@ public:
 	void setSock(const int& sock) {
 		sock_ = sock;
 	}
-	//TODO move started to Real and proxy
+
+	//TODO move started to Real and proxy to it
 	bool started() const {
 		//log_(std::string("STARTED?").append(std::to_string(isStarted_)));
 		return isStarted_;
@@ -76,6 +90,7 @@ private:
 	ChannelMode mode_;
 	Handlers handlers_;
 
+	std::string host_;
 	std::string port_;
 	int sock_;
 
