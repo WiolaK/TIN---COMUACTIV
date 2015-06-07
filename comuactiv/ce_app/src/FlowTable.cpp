@@ -24,22 +24,30 @@ void FlowTable::loadTable() {
 	table.LoadFile("../flowtable.xml");
 }
 
+std::map<std::string, std::string> FlowTable::getFTMap(){
+	return ftmap;
+}
+
 int FlowTable::checkTable() {
 	XMLText* textNode;
-	XMLElement *element;
-//	element = table.FirstChildElement("FLOWTABLE");
-//	element = element->FirstChildElement("ENTRY");
-//	element = element->FirstChildElement("FROM");
-//	textNode = element->FirstChild()->ToText();
-	for(int i=1; i<2; i++){
+	XMLElement *element, *e;
+	element = table.FirstChildElement("FLOWTABLE");
 
-//		textNode = table.FirstChildElement("FLOWTABLE")->FirstChildElement("ENTRY")->FirstChildElement("FROM")->FirstChild()->ToText();
-//		from = textNode->Value();
+	for(e = element->FirstChildElement("ENTRY"); e != 0; e = e->NextSiblingElement("ENTRY")){
+
+		textNode = e->FirstChildElement("FROM")->FirstChild()->ToText();
+		from = textNode->Value();
+		textNode = e->FirstChildElement("TO")->FirstChild()->ToText();
+		to = textNode->Value();
+
+		printf("%s \n", from);
+		printf("%s \n", to);
+		ftmap.insert(std::pair<std::string,std::string>(from, to));
 	}
-
-//	printf("%s \n", from);
-
+	std::cout << "ftmap size " << ftmap.size() << std::endl;
 	return 0;
 }
+
+
 
 } /* namespace flowtable */
