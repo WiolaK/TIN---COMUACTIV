@@ -9,7 +9,9 @@
 #define SRC_CE_APP_CONTROLENTITY_HPP_
 
 #include <string>
+#include <vector>
 
+#include "../../proto/include/comuactiv/ComuactivServerSlot.hpp"
 #include "FlowTable.h"
 
 namespace comuactiv {
@@ -25,7 +27,7 @@ private:
 	ControlEntity();
 	ControlEntity(const ControlEntity&) = delete;
 	ControlEntity& operator=(const ControlEntity&) = delete;
-	flowtable::FlowTable flowtable;
+	flowtable::FlowTable flowtable_;
 };
 
 } /* namespace ce_app */

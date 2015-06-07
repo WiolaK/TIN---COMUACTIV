@@ -11,6 +11,11 @@ namespace comuactiv {
 namespace proto {
 namespace messages {
 
+FlowTableEntryUpdateMsg::FlowTableEntryUpdateMsg(std::string tableString)
+: Message(defaultCode) {
+	this->setData(tableString);
+}
+
 FlowTableEntryUpdateMsg::FlowTableEntryUpdateMsg(pRawMessage raw)
 : Message(defaultCode) {
 	// TODO Auto-generated constructor stub

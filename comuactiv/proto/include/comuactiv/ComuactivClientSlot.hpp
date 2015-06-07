@@ -27,8 +27,6 @@ private:
 	//not defined here
 	class ComuactivClientSlotImpl;
 	ComuactivClientSlotImpl* slot_;
-
-
 };
 
 } /* namespace proto */

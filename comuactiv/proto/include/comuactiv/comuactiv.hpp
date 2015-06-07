@@ -12,5 +12,6 @@
 
 #include "ComuactivServerSlot.hpp"
 #include "ComuactivClientSlot.hpp"
+#include "Command.hpp"
 
 #endif /* PROTO_INCLUDE_COMUACTIV_HPP_ */

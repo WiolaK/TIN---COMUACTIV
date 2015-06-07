@@ -21,6 +21,7 @@ class FlowTableEntryUpdateMsg: public Message {
 public:
 	const static MsgCode defaultCode = FLOW_TABLE_ENTRY_UPDATE;
 
+	FlowTableEntryUpdateMsg(std::string tableString);
 	FlowTableEntryUpdateMsg(pRawMessage raw);
 	virtual ~FlowTableEntryUpdateMsg();
 

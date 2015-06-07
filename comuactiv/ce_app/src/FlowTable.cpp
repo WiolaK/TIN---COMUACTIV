@@ -12,6 +12,7 @@
 using namespace tinyxml2;
 
 namespace flowtable {
+
 FlowTable::FlowTable() {
 	loadTable();
 }
@@ -48,6 +49,10 @@ int FlowTable::checkTable() {
 	return 0;
 }
 
-
+std::string FlowTable::toString() {
+	XMLPrinter printer;
+	table.Accept(&printer);
+	return std::string(printer.CStr());
+}
 
 } /* namespace flowtable */

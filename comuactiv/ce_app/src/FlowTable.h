@@ -31,7 +31,7 @@ public:
 	void loadTable();
 	int checkTable();
 	std::map<std::string, std::string> getFTMap();
-
+	std::string toString();
 };
 }
 

@@ -5,13 +5,16 @@
  *      Author: Jan Kumor
  */
 
+#include <comuactiv/Command.hpp>
 #include <comuactiv/ComuactivServerSlot.hpp>
+#include <comuactiv/SendFlowTableCommand.hpp>
 #include <pthread.h>
 #include <unistd.h>
 #include <algorithm>
 #include <functional>
 #include <memory>
 
+#include "BlockingQueue.hpp"
 #include "channels/Channel.hpp"
 #include "channels/ProxyChannel.hpp"
 #include "handlers/AssociationSetupHandler.hpp"
@@ -19,6 +22,7 @@
 #include "handlers/Handler.hpp"
 #include "handlers/HeartbeatHandler.hpp"
 #include "messages/AssociationSetupResponseMsg.hpp"
+#include "messages/FlowTableEntryUpdateMsg.hpp"
 #include "messages/Message.hpp"
 #include "utils/Printer.hpp"
 #include "utils/ThreadBase.hpp"
@@ -33,7 +37,9 @@ using namespace comuactiv::proto::utils;
 namespace comuactiv {
 namespace proto {
 
-class ComuactivServerSlot::ComuactivServerSlotImpl : public ThreadBase {
+class ComuactivServerSlot::ComuactivServerSlotImpl
+		: public ThreadBase,
+		  public std::enable_shared_from_this<ComuactivServerSlotImpl> {
 public:
 	static int counter_;
 
@@ -41,13 +47,17 @@ public:
 	ComuactivServerSlotImpl(int sock, std::string host);
 	virtual ~ComuactivServerSlotImpl();
 
+	void insertCommand(pCommand command);
+
 	virtual void* run();
 
 	void stageTwo(std::string lowPort);
-
+	void stageThree();
 private:
 	int id_;
 	Printer log_;
+	bool isStarted_;
+	BlockingQueue blockingQueue_;
 
 	int sock_;
 
@@ -65,6 +75,10 @@ private:
 	//low must be asynchronous therefore active and passive
 	ProxyChannel pLow_;
 	ProxyChannel aLow_;
+
+	std::string actualFlowTable_;
+
+	void executeCommand(pSendFlowTableCommand command);
 };
 
 int ComuactivServerSlot::ComuactivServerSlotImpl::counter_ = 0;
@@ -87,6 +101,7 @@ ComuactivServerSlot::ComuactivServerSlotImpl::ComuactivServerSlotImpl()
 ComuactivServerSlot::ComuactivServerSlotImpl::ComuactivServerSlotImpl(int sock, std::string host)
 : id_(++counter_),
   log_(std::string("ComuactivServerSlot#").append(std::to_string(id_))),
+  isStarted_(true),
   sock_(sock),
   host_(host) {
 	log_("created.");
@@ -94,6 +109,7 @@ ComuactivServerSlot::ComuactivServerSlotImpl::ComuactivServerSlotImpl(int sock, 
 }
 
 /*
+
 ComuactivSlot::ComuactivSlot(const ComuactivSlot& other)
     : slot_(new ComuactivSlot(*other.slot_)) {
     // do nothing
@@ -112,6 +128,7 @@ ComuactivServerSlot& ComuactivServerSlot::operator=(const ComuactivServerSlot &o
 	return *this;
 }
 
+
 ComuactivServerSlot::~ComuactivServerSlot() {
 	delete slot_;
 }
@@ -119,6 +136,14 @@ ComuactivServerSlot::~ComuactivServerSlot() {
 ComuactivServerSlot::ComuactivServerSlotImpl::~ComuactivServerSlotImpl() {
 	log_("Joining thread.");
 	pthread_join(tid, nullptr);
+}
+
+void ComuactivServerSlot::insertCommand(pCommand command) {
+	slot_->insertCommand(command);
+}
+
+void ComuactivServerSlot::ComuactivServerSlotImpl::insertCommand(pCommand command) {
+	blockingQueue_.push(command);
 }
 
 void* ComuactivServerSlot::ComuactivServerSlotImpl::run() {
@@ -153,9 +178,28 @@ void ComuactivServerSlot::ComuactivServerSlotImpl::stageTwo(std::string lowPort)
 	pMessage response = pAssociationSetupResponseMsg( new AssociationSetupResponseMsg( lowPort_, mediumPort_ ) );
 	high_.writeMessage(response->getRaw());
 
+	high_.switchMode();
+	high_.start();
+	stageThree();
+}
 
-	//high_.switchMode();
-	//high_.start();
+void ComuactivServerSlot::ComuactivServerSlotImpl::stageThree() {
+	while(isStarted_) {
+		pCommand command = blockingQueue_.pop();
+		switch(command->code_) {
+		case Command::SEND_FLOW_TABLE:
+			executeCommand( std::static_pointer_cast<SendFlowTableCommand>(command) );
+			break;
+
+		default:
+			break;
+		}
+	}
+}
+
+void ComuactivServerSlot::ComuactivServerSlotImpl::executeCommand(pSendFlowTableCommand command) {
+	FlowTableEntryUpdateMsg message(command->getTableString());
+	high_.writeMessage(message.getRaw());
 }
 
 } /* namespace proto */

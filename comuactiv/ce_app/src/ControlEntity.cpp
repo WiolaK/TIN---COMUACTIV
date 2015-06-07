@@ -4,19 +4,20 @@
  *  Created on: 3 May 2015
  *      Author: Jan Kumor
  */
-
-#include "ControlEntity.hpp"
-#include "FlowTable.h"
-
-#include "../../proto/include/comuactiv/ComuactivServerSlot.hpp"
-
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <vector>
+#include <pthread.h>
+#include <mutex>
+
+#include "../../proto/include/comuactiv/SendFlowTableCommand.hpp"
+
+#include "ControlEntity.hpp"
+#include "FlowTable.h"
+#include "UserInterface.hpp"
 
 using namespace comuactiv::ce_app;
 using namespace comuactiv::proto;
@@ -64,10 +65,13 @@ void ControlEntity::start(std::string port) {
 	}
 	std::cout << "CE is listening for incoming connections on port: " << ntohs(server.sin_port) << std::endl;
 
-	flowtable.loadTable();
-	flowtable.checkTable();
+	flowtable_.loadTable();
+	flowtable_.checkTable();
 
-	std::vector<ComuactivServerSlot> slots;
+	std::mutex slotsMtx;
+	std::vector<proto::pComuactivServerSlot> slots;
+	UserInterface uI(slots, slotsMtx, flowtable_);
+
 	listen(sock, 5);
 	do {
 		struct sockaddr connectionAddres;
@@ -78,9 +82,10 @@ void ControlEntity::start(std::string port) {
 		} else {
 			std::string host(inet_ntoa( reinterpret_cast<struct sockaddr_in*>(&connectionAddres)->sin_addr ) );
 			std::cout << "CE: Incoming connection from: " << host << " accepted on socket: " << msgsock << std::endl;
-			slots.push_back(ComuactivServerSlot(msgsock, host));
+			std::lock_guard<std::mutex> lock(slotsMtx);
+			slots.push_back( pComuactivServerSlot(new ComuactivServerSlot(msgsock, host)));
 		}
-	} while(1);
+	} while(true);
 }
 
 } /* namespace ce_app */
