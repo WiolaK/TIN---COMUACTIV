@@ -27,11 +27,17 @@ public:
 		std::cout << name_ << ": " << log << std::endl;
 	}
 
+	template<typename T>
+	Printer& operator<<(T t ) {
+		std::lock_guard<std::mutex> lock(mtx_);
+		std::cout << t;
+		return *this;
+	}
+
 protected:
 	std::string name_;
 	static std::mutex mtx_;
 };
-
 
 } /* namespace utils */
 } /* namespace proto */

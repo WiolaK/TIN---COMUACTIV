@@ -26,7 +26,6 @@ public:
 	ComuactivServerSlot& operator=(const ComuactivServerSlot&);
 	~ComuactivServerSlot();
 	//Operations
-	/*void start();*/
 	void insertCommand(pCommand command);
 private:
 	//not defined here

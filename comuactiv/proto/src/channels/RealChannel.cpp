@@ -133,7 +133,7 @@ void RealChannel::initializePassive() {
 		perror("accept");
 	} else {
 		host_.assign( inet_ntoa( reinterpret_cast<SocketAddressIn*>(&connectionAddres)->sin_addr ) );
-		log_(std::string("Connection from: ").append(host_).append("accepted on port: ").append(port_));
+		log_(std::string("Connection from: ").append(host_).append(" accepted on port: ").append(port_));
 	}
 
 }

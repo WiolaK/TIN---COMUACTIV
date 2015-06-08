@@ -16,23 +16,23 @@
 #include "../../proto/include/comuactiv/SendFlowTableCommand.hpp"
 
 #include "ControlEntity.hpp"
-#include "FlowTable.h"
+
+#include "../../proto/include/comuactiv/FlowTable.hpp"
 #include "UserInterface.hpp"
 
 using namespace comuactiv::ce_app;
 using namespace comuactiv::proto;
-using namespace flowtable;
+using namespace comuactiv::proto::flowtable;
 
 namespace comuactiv {
 namespace ce_app {
 
 ControlEntity::ControlEntity() {
-
+	//Do nothing
 }
 
 ControlEntity& ControlEntity::ControlEntity::getInstance() {
 	static ControlEntity instance;
-//	static FlowTable ft = new FlowTable;
 	return instance;
 }
 
@@ -65,7 +65,7 @@ void ControlEntity::start(std::string port) {
 	}
 	std::cout << "CE is listening for incoming connections on port: " << ntohs(server.sin_port) << std::endl;
 
-	flowtable_.loadTable();
+	flowtable_.loadTable("../flowtable.xml");
 	flowtable_.checkTable();
 
 	std::mutex slotsMtx;

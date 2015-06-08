@@ -5,24 +5,19 @@
  *      Author: Jan Kumor
  */
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <stdio.h>
-
-#include <cstring>
-#include <iostream>
-#include <memory>
-
-#include "../../proto/include/comuactiv/comuactiv.hpp"
-
 #include "ForwardEntity.hpp"
+
+#include "../../proto/include/comuactiv/ComuactivClientSlot.hpp"
+#include "../../proto/include/comuactiv/FlowTable.hpp"
+#include <iostream>
+#include <string>
+
+#include "UDPStreamer.hpp"
 
 
 using namespace comuactiv::fe_app;
 using namespace comuactiv::proto;
+using namespace comuactiv::proto::flowtable;
 
 namespace comuactiv {
 namespace fe_app {
@@ -36,10 +31,12 @@ ForwardEntity& ForwardEntity::ForwardEntity::getInstance() {
 	return instance;
 }
 
-void ForwardEntity::start(std::string host, std::string highPort) {
+void ForwardEntity::start(std::string host, std::string highPort, std::string streamerPort) {
 	std::cout << "FE Started" << std::endl;
-	std::unique_ptr<ComuactivClientSlot> slot(new ComuactivClientSlot(host, highPort));
-	slot->run();
+	pFlowTable table(new FlowTable);
+//	std::unique_ptr<ComuactivClientSlot> slot(new ComuactivClientSlot(host, highPort, table));
+	ComuactivClientSlot slot(host, highPort, table);
+	UDPStreamer streamer(streamerPort, table);
 }
 
 } /* namespace fe_app */

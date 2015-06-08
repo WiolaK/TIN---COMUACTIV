@@ -17,10 +17,10 @@
 
 #include "../../proto/include/comuactiv/Command.hpp"
 #include "../../proto/include/comuactiv/ComuactivServerSlot.hpp"
+#include "../../proto/include/comuactiv/FlowTable.hpp"
 #include "../../proto/include/comuactiv/SendFlowTableCommand.hpp"
 #include "../../proto/src/utils/Printer.hpp"
 #include "../../proto/src/utils/ThreadBase.hpp"
-#include "FlowTable.h"
 
 namespace std {
 class mutex;
@@ -31,7 +31,7 @@ namespace ce_app {
 
 class UserInterface : public proto::utils::ThreadBase {
 public:
-	UserInterface(std::vector<proto::pComuactivServerSlot>& slots , std::mutex& slotsMtx, flowtable::FlowTable& table) : slots_(slots), mtx_(slotsMtx), table_(table) {
+	UserInterface(std::vector<proto::pComuactivServerSlot>& slots , std::mutex& slotsMtx, proto::flowtable::FlowTable& table) : slots_(slots), mtx_(slotsMtx), table_(table) {
 		pthread_create(&tid, nullptr, &proto::utils::execute, this);
 	};
 	virtual ~UserInterface();
@@ -39,9 +39,15 @@ public:
 	virtual void* run() {
 		proto::utils::Printer printer("UserInterface");
 		while(true) {
-			printer("\n\tf - send flow table update\n\te - exit");
+			printer("\n\tf - send flow table update\n\tl - load flow table from file\n\te - exit");
 			char c = std::cin.get();
+			std::cin.get();
 			switch(c) {
+			case 'l':
+				table_.loadTable("../flowtable.xml");
+				table_.checkTable();
+				break;
+
 			case 'f':
 				for( proto::pComuactivServerSlot slot : slots_) {
 					std::lock_guard<std::mutex> lock(mtx_);
@@ -61,7 +67,7 @@ public:
 private:
 	std::vector<proto::pComuactivServerSlot>& slots_;
 	std::mutex& mtx_;
-	flowtable::FlowTable& table_;
+	proto::flowtable::FlowTable& table_;
 };
 
 } /* namespace ce_app */

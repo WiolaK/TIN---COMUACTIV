@@ -1,7 +1,7 @@
 <FLOWTABLE>
     <ENTRY>
         <FROM>127.0.0.1</FROM>
-        <TO>127.0.0.1 5555</TO>
+        <TO>127.0.0.1 5558</TO>
         <PRIORITY>10</PRIORITY>
     </ENTRY>
     <ENTRY>
@@ -16,7 +16,7 @@
     </ENTRY>
     <ENTRY>
         <FROM>192.168.0.10</FROM>
-        <TO>127.0.0.1 5520</TO>
+        <TO>127.0.0.1 5540</TO>
         <PRIORITY>10</PRIORITY>
     </ENTRY>
 </FLOWTABLE>

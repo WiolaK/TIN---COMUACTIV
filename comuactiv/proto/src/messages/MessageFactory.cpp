@@ -7,12 +7,11 @@
 
 #include "MessageFactory.hpp"
 
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/for_each.hpp>
 #include <utility>
 
 #include "AssociationSetupMsg.hpp"
 #include "AssociationSetupResponseMsg.hpp"
+#include "FlowTableEntryUpdateMsg.hpp"
 #include "HeartbeatMsg.hpp"
 #include "RawMessage.hpp"
 
@@ -46,6 +45,7 @@ void MessageFactory::initialize() {
 	this->registerMessage(AssociationSetupMsg::defaultCode, AssociationSetupMsg::create);
 	this->registerMessage(AssociationSetupResponseMsg::defaultCode, AssociationSetupResponseMsg::create);
 	this->registerMessage(HeartbeatMsg::defaultCode, HeartbeatMsg::create);
+	this->registerMessage(FlowTableEntryUpdateMsg::defaultCode, FlowTableEntryUpdateMsg::create);
 	isInitialized_ = true;
 }
 

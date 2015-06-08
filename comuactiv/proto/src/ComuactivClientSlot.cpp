@@ -6,36 +6,49 @@
  */
 
 #include <comuactiv/ComuactivClientSlot.hpp>
+#include <pthread.h>
 #include <unistd.h>
 #include <algorithm>
 #include <functional>
 #include <memory>
 
+#include "BlockingQueue.hpp"
 #include "channels/Channel.hpp"
 #include "channels/ProxyChannel.hpp"
 #include "handlers/AssociationSetupResponseHandler.hpp"
+#include "handlers/FlowTableEntryUpdateHandler.hpp"
 #include "handlers/Handler.hpp"
 #include "handlers/HeartbeatHandler.hpp"
 #include "messages/AssociationSetupMsg.hpp"
 #include "messages/Message.hpp"
 #include "utils/Printer.hpp"
+#include "utils/ThreadBase.hpp"
 
 using namespace comuactiv::proto;
 using namespace comuactiv::proto::messages;
 using namespace comuactiv::proto::handlers;
 using namespace comuactiv::proto::channels;
 using namespace comuactiv::proto::utils;
+using namespace comuactiv::proto::flowtable;
 
 namespace comuactiv {
 namespace proto {
 
-class ComuactivClientSlot::ComuactivClientSlotImpl {
+class ComuactivClientSlot::ComuactivClientSlotImpl : public ThreadBase {
 public:
-	ComuactivClientSlotImpl(std::string host, std::string highPort);
-	void run();
+	ComuactivClientSlotImpl();
+	ComuactivClientSlotImpl(std::string host, std::string highPort, pFlowTable table);
+	virtual ~ComuactivClientSlotImpl();
+
+	virtual void* run();
+
+	void insertCommand(pCommand command);
 
 private:
+	bool isStarted_;
+	BlockingQueue blockingQueue_;
 	Printer log_;
+	pFlowTable table_;
 
 	std::string host_;
 	std::string highPort_;
@@ -53,18 +66,23 @@ private:
 	ProxyChannel pLow_;
 
 	void stageTwo(std::string mediumPort, std::string lowPort);
+	void stageThree();
 };
 
-ComuactivClientSlot::ComuactivClientSlot(std::string host, std::string highPort)
-: slot_( new ComuactivClientSlotImpl(host, highPort) ) {
+ComuactivClientSlot::ComuactivClientSlot(std::string host, std::string highPort, pFlowTable table)
+: slot_( new ComuactivClientSlotImpl(host, highPort, table) ) {
 	// do nothing
 }
 
-ComuactivClientSlot::ComuactivClientSlotImpl::ComuactivClientSlotImpl(std::string host, std::string highPort)
-: log_(std::string("ComuactivClientSlot#")),
+ComuactivClientSlot::ComuactivClientSlotImpl::ComuactivClientSlotImpl(std::string host, std::string highPort, pFlowTable table)
+: isStarted_(true),
+  log_(std::string("ComuactivClientSlot#")),
+  table_(table),
   host_(host),
   highPort_(highPort) {
 	log_("created.");
+	pthread_create(&tid, nullptr, &execute, this);
+
 }
 /*
 ComuactivSlot::ComuactivSlot(const ComuactivSlot& other)
@@ -89,11 +107,24 @@ ComuactivClientSlot::~ComuactivClientSlot() {
 	delete slot_;
 }
 
+ComuactivClientSlot::ComuactivClientSlotImpl::~ComuactivClientSlotImpl() {
+	pthread_join(tid, nullptr);
+	log_("thread joined.");
+}
+
+void ComuactivClientSlot::insertCommand(pCommand command) {
+	slot_->insertCommand(command);
+}
+
+void ComuactivClientSlot::ComuactivClientSlotImpl::insertCommand(pCommand command) {
+	blockingQueue_.push(command);
+}
+
 void ComuactivClientSlot::run() {
 	slot_->run();
 }
 
-void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
+void* ComuactivClientSlot::ComuactivClientSlotImpl::run() {
 	log_("Creating passive channels");
 	pLow_ = ProxyChannel(Channel::PASSIVE);
 	pLow_.registerHandler( Message::HEARTBEAT, pHandler(new HeartbeatHandler() ) );
@@ -107,7 +138,7 @@ void ComuactivClientSlot::ComuactivClientSlotImpl::run() {
 	high_.registerHandler(
 			messages::Message::ASSOCIATION_SETUP_RESPONSE,
 			pHandler( new AssociationSetupResponseHandler( aSRHcallback ) )
-			);
+	);
 	high_.setHost(host_);
 	high_.setPort(highPort_);
 	high_.start();
@@ -133,7 +164,27 @@ void ComuactivClientSlot::ComuactivClientSlotImpl::stageTwo(std::string mediumPo
 	aLow_.start();
 
 	high_.switchMode();
+	high_.registerHandler(
+			messages::Message::FLOW_TABLE_ENTRY_UPDATE,
+			pHandler( new FlowTableEntryUpdateHandler(table_) )
+	);
 	high_.start();
+
+	stageThree();
+}
+
+void ComuactivClientSlot::ComuactivClientSlotImpl::stageThree() {
+	while(isStarted_) {
+		pCommand command = blockingQueue_.pop();
+		switch(command->code_) {
+		/*case Command::SEND_FLOW_TABLE:
+			executeCommand( std::static_pointer_cast<SendFlowTableCommand>(command) );
+			break;*/
+
+		default:
+			break;
+		}
+	}
 }
 
 } /* namespace proto */

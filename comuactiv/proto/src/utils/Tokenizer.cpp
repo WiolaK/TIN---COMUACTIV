@@ -27,7 +27,6 @@ std::vector<std::string> Tokenizer::operator()(std::string str) {
 	std::vector<std::string> tokens;
 	for(size_t p=0, q=0; p != str.npos; p=q) {
 		std::string subString = str.substr(p+(p!=0), (q=str.find(sep_, p+1))-p-(p!=0));
-		std::cout << subString << std::endl;
 		tokens.push_back(subString);
 	}
 	return tokens;

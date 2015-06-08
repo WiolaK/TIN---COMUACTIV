@@ -8,6 +8,8 @@
 #ifndef SRC_FE_APP_FORWARDENTITY_HPP_
 #define SRC_FE_APP_FORWARDENTITY_HPP_
 
+#include <string>
+
 namespace comuactiv {
 namespace fe_app {
 
@@ -15,7 +17,7 @@ class ForwardEntity {
 public:
 	static ForwardEntity& getInstance();
 
-	void start(std::string host, std::string highPort);
+	void start(std::string host, std::string highPort, std::string streamerPort);
 
 private:
 	ForwardEntity();

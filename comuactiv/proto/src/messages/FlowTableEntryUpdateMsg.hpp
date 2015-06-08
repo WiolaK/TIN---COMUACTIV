@@ -25,9 +25,11 @@ public:
 	FlowTableEntryUpdateMsg(pRawMessage raw);
 	virtual ~FlowTableEntryUpdateMsg();
 
-	pMessage create(pRawMessage raw) {
+	static pMessage create(pRawMessage raw) {
 		return std::shared_ptr<FlowTableEntryUpdateMsg>( new FlowTableEntryUpdateMsg(raw) );
 	}
+
+	std::string getTableString() { return data_; }
 };
 
 typedef std::shared_ptr<FlowTableEntryUpdateMsg> pFlowTableEntryUpdateMsg;

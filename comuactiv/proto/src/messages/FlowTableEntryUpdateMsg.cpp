@@ -18,8 +18,12 @@ FlowTableEntryUpdateMsg::FlowTableEntryUpdateMsg(std::string tableString)
 
 FlowTableEntryUpdateMsg::FlowTableEntryUpdateMsg(pRawMessage raw)
 : Message(defaultCode) {
-	// TODO Auto-generated constructor stub
-
+	memcpy(&header_, raw->array, sizeof(header_));
+	//copying data
+	int dataLength = header_.length_ - sizeof(header_);
+	if( dataLength > 0 ) {
+		data_.assign(raw->array+sizeof(header_), dataLength);
+	}
 }
 
 FlowTableEntryUpdateMsg::~FlowTableEntryUpdateMsg() {

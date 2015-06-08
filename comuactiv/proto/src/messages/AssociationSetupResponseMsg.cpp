@@ -8,11 +8,10 @@
 #include "AssociationSetupResponseMsg.hpp"
 
 #include <cstring>
-#include <iostream>
 #include <sstream>
-#include <string>
 #include <vector>
 
+#include "../utils/Printer.hpp"
 #include "../utils/Tokenizer.hpp"
 
 using namespace comuactiv::proto::utils;
@@ -41,9 +40,9 @@ AssociationSetupResponseMsg::AssociationSetupResponseMsg(pRawMessage raw)
 
 	Tokenizer tokenizer('-');
 	auto tokens = tokenizer(data_);
-
 	if(tokens.size() != 2)
-		std::cout << "BAD MESSAGE!" << std::endl;
+		utils::Printer("AssociationSetupResponseMsg parser")("Incorrect message!");
+		//TODO [JKU] powinno rzucać wyjątek
 	else
 	{
 		mediumPort_ = tokens[0];

@@ -5,14 +5,12 @@
  *      Author: Jan Kumor
  */
 
-#include <comuactiv/Command.hpp>
 #include <comuactiv/ComuactivServerSlot.hpp>
 #include <comuactiv/SendFlowTableCommand.hpp>
 #include <pthread.h>
 #include <unistd.h>
 #include <algorithm>
 #include <functional>
-#include <memory>
 
 #include "BlockingQueue.hpp"
 #include "channels/Channel.hpp"
@@ -75,8 +73,6 @@ private:
 	//low must be asynchronous therefore active and passive
 	ProxyChannel pLow_;
 	ProxyChannel aLow_;
-
-	std::string actualFlowTable_;
 
 	void executeCommand(pSendFlowTableCommand command);
 };

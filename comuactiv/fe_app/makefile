@@ -4,7 +4,7 @@
 #Compiler
 CC := g++
 #Compiler flags
-CFLAGS=-c -Wall -Wextra -std=c++11 -O0
+CFLAGS=-c -g -Wall -Wextra -std=c++11 -O0
 #Libraries
 LIB :=  -lcomuactiv -pthread
 #Include
