@@ -7,10 +7,10 @@
 
 #include "AssociationSetupResponseHandler.hpp"
 
-#include <iostream>
 #include <memory>
 
 #include "../messages/AssociationSetupResponseMsg.hpp"
+#include "../utils/Printer.hpp"
 
 using namespace comuactiv::proto::messages;
 
@@ -27,7 +27,7 @@ AssociationSetupResponseHandler::~AssociationSetupResponseHandler() {
 }
 
 void AssociationSetupResponseHandler::operator ()(pMessage msg) {
-	std::cout << "AssociationSetupResponse Handler" << std::endl;
+	//utils::Printer("AssociationSetupResponseHandler")("executed");
 	pAssociationSetupResponseMsg aSRMsg = std::static_pointer_cast<AssociationSetupResponseMsg>(msg);
 
 	callback_(aSRMsg->getMediumPort(), aSRMsg->getLowPort());

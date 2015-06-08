@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "../messages/AssociationSetupMsg.hpp"
+#include "../utils/Printer.hpp"
 
 
 using namespace comuactiv::proto::messages;
@@ -25,6 +26,7 @@ AssociationSetupHandler::~AssociationSetupHandler() {
 }
 
 void AssociationSetupHandler::operator()(pMessage msg) {
+	//utils::Printer("AssociationSetupHandler")("executed");
 	std::cout << "AssociationSetup Handler" << std::endl;
 	pAssociationSetupMsg aSMsg = std::static_pointer_cast<AssociationSetupMsg>(msg);
 	sleep(2);

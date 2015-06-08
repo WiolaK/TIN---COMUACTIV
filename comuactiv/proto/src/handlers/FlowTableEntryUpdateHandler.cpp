@@ -30,8 +30,7 @@ FlowTableEntryUpdateHandler::~FlowTableEntryUpdateHandler() {
 }
 
 void FlowTableEntryUpdateHandler::operator ()(pMessage msg) {
-	utils::Printer printer("FlowTableEntryUpdateHandler");
-	printer("executed");
+	//utils::Printer("FlowTableEntryUpdateHandler")("executed");
 	pFlowTableEntryUpdateMsg fTEUMsg = std::static_pointer_cast<FlowTableEntryUpdateMsg>(msg);
 	table_->parseTable(fTEUMsg->getTableString());
 	table_->checkTable();

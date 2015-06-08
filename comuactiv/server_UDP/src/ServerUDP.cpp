@@ -70,8 +70,8 @@ int main(int argc, char**argv)
 		}
 
 		strcpy(repl,"Potwierdzam otrzymanie komunikatu \n");
-
-		sendto(sockfd, repl, buf, 0, (struct sockaddr *)&cliaddr, sizeof(cliaddr));
+		//JKU musiałem zakomentować bo jeśli odpowiada na localhoscie to zapętla się protokól
+		//sendto(sockfd, repl, buf, 0, (struct sockaddr *)&cliaddr, sizeof(cliaddr));
 
 		printf(".........................................\n");
 		mesg[n] = 0;
