@@ -14,20 +14,21 @@
 #include "../../proto/src/utils/Printer.hpp"
 #include "../../proto/src/utils/ThreadBase.hpp"
 
-//TODO: [JKU] te nagłówki powinny trafić do oddzielnej comuactiv utils
+using namespace std;
+
 namespace comuactiv {
 namespace fe_app {
 
 class UDPStreamer : public proto::utils::ThreadBase {
 public:
-	UDPStreamer(std::string port, proto::flowtable::pFlowTable table);
+	UDPStreamer(string port, proto::flowtable::pFlowTable table);
 	virtual ~UDPStreamer();
 
 	virtual void* run();
 
 private:
-	proto::utils::Printer log_;
-	std::string port_;
+	proto::utils::Printer print_;
+	string port_;
 	proto::flowtable::pFlowTable table_;
 };
 
