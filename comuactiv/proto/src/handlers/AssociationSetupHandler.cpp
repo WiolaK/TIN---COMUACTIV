@@ -27,7 +27,6 @@ AssociationSetupHandler::~AssociationSetupHandler() {
 
 void AssociationSetupHandler::operator()(pMessage msg) {
 	//utils::Printer("AssociationSetupHandler")("executed");
-	std::cout << "AssociationSetup Handler" << std::endl;
 	pAssociationSetupMsg aSMsg = std::static_pointer_cast<AssociationSetupMsg>(msg);
 	sleep(2);
 	/*pMessage response = pAssociationSetupResponseMsg( new AssociationSetupResponseMsg( std::string("5554"), std::string("5553") ) );

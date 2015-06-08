@@ -8,6 +8,7 @@
 #ifndef PROTO_SRC_UTILS_PRINTER_HPP_
 #define PROTO_SRC_UTILS_PRINTER_HPP_
 
+#include <ctime>
 #include <iostream>
 #include <mutex>
 #include <string>
@@ -23,8 +24,12 @@ public:
 	virtual ~Printer() {};
 
 	void operator()(std::string log) const {
+		//Full ISO 8601 timestamp
+		std::time_t t = std::time(nullptr);
+		char timestamp[28];
+		std::strftime(timestamp, sizeof(timestamp), "%FT%T%z: ", std::localtime(&t));
 		std::lock_guard<std::mutex> lock(mtx_);
-		std::cout << name_ << ": " << log << std::endl;
+		std::cout << timestamp << name_ << ": " << log << std::endl;
 	}
 
 	template<typename T>

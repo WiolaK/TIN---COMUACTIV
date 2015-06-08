@@ -31,11 +31,13 @@ FlowTable::~FlowTable() {
 void FlowTable::loadTable(std::string path) {
 	std::lock_guard<std::mutex> lock(mtx_);
 	table_.LoadFile(path.c_str());
+	ftmap_.clear();
 }
 
 void FlowTable::parseTable(std::string str) {
 	std::lock_guard<std::mutex> lock(mtx_);
 	table_.Parse(str.c_str());
+	ftmap_.clear();
 }
 
 int FlowTable::checkTable() {
