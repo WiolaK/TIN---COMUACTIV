@@ -104,6 +104,7 @@ void* UDPStreamer::run() {
 				} else {
 					memcpy( (char*) &cliaddr.sin_addr, (char*)hostEntry->h_addr, hostEntry->h_length);
 					cliaddr.sin_port = htons(atoi(targetPort.c_str()));
+					log_("Redirecting packet to" + targetRule);
 					sendto(sockfd,mesg,n,0,(struct sockaddr *)&cliaddr,sizeof(cliaddr));
 					continue;
 				}
