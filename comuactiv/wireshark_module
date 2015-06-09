@@ -1,0 +1,72 @@
+do
+    
+    local com = Proto("comuactive", "Protokol na TINy")
+
+    function com.init()
+    end
+
+    local f = com.fields
+    f.code = ProtoField.uint32("com.code", "CODE")
+    f.codefrendly = ProtoField.string("com.codefrendly", "TYPE:")
+    f.identifier = ProtoField.uint32("com.identifier", "ID ")
+    f.length = ProtoField.uint32("com.length", "LENGTH")
+    f.data = ProtoField.string("com.data", "DATA")
+
+    function com.dissector(buffer, pinfo, tree)
+        
+	if buffer:len()<12 then
+		return;
+	end
+	
+	local header = buffer(0,11):string()
+	local code = buffer(12,4)
+	local codeVal = code(3,1):uint()*2^3+code(2,1):uint()*2^2+code(1,1):uint()*2+code(0,1):uint()	--reczne przescie z big endian na little endian
+	
+	local length = buffer(16,4)
+	local lengthVal = length(3,1):uint()*2^3+length(2,1):uint()*2^2+length(1,1):uint()*2+length(0,1):uint()
+
+	local id = buffer(20,4)
+	local idVal = id(3,1):uint()*2^3+id(2,1):uint()*2^2+id(1,1):uint()*2+id(0,1):uint()
+
+	local dataLength = buffer:len() -24
+	local data = buffer(24,dataLength):string()
+	print ("Header: ",header,"|Code: ",codeVal,"|length: ",lengthVal,"|id: ",idVal,"|DATA: ", data,"|")
+	
+	if  string.find(header, "COMUACTIV") then 
+		pinfo.cols.protocol = 'COMUACTIV15'
+		--pinfo.cols.info = ("")
+	end
+
+       
+ 	local subtree = tree:add(com, buffer())
+        local offset = 0
+	local codeFirendly =""
+	
+        subtree:add(f.code, codeVal)
+	if codeVal == 0 then codeFirendly = "ASSOCIATION_SETUP"			-- Nawiazanie polaczenia
+	elseif codeVal ==1 then codeFirendly = "ASSOCIATION_SETUP_RESPONSE"	-- Odpowiedz na rozpoczecie polaczenia
+	elseif codeVal ==2 then codeFirendly = "ASSOCIATION_TEARDOWN"		-- Zamkniecie polaczenia
+	elseif codeVal ==3 then codeFirendly = "CONFIGURATION"			 
+	elseif codeVal ==4 then codeFirendly = "CONFIGURATION_RESPONSE"		 
+	elseif codeVal ==5 then codeFirendly = "QUERY"				 
+	elseif codeVal ==6 then codeFirendly = "QUERY_RESPONSE"			 
+	elseif codeVal ==7 then codeFirendly = "FLOW_TABLE_ENTRY_UPDATE"	-- Przeslanie nowej tablicy z CE do FE
+	elseif codeVal ==8 then codeFirendly = "EVENT_NOTIFICATION"		 
+	elseif codeVal ==9 then codeFirendly = "PACKET_REDIRECT"		 
+	elseif codeVal ==10 then codeFirendly = "HEARTBEAT"			 
+	end
+	subtree:add(f.codefrendly, codeFirendly)
+
+        subtree:add(f.identifier, idVal)
+        local length = buffer(offset + 2, 2)
+        subtree:add(f.length, lengthVal)
+	subtree:add(f.data, data)
+
+
+    end
+
+
+    local tcp_dissector_table = DissectorTable.get("tcp.port")
+    original_tcp_dissector = tcp_dissector_table:get_dissector(10000)	--numer portu
+    tcp_dissector_table:add(10000, com)
+end
